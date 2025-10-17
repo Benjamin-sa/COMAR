@@ -6,12 +6,11 @@
 .globl _start
 
 _start:
-    # Initialisatie: laad lengte en array adres
     la t0, lengte           # t0 = adres van lengte variabele
     lw t1, 0(t0)            # t1 = lengte van array (aantal elementen)
     la t2, array            # t2 = basis adres van array
     
-    # Print originele array (alleen integers)
+    # Print originele array 
     li t3, 0                # t3 = teller
 print_origineel_lus:
     bge t3, t1, print_origineel_klaar
