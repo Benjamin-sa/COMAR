@@ -65,15 +65,28 @@ begin
                                 ALUOp       <= "000";
                                 WriteReg    <= '0'; 
                         end case;
-                    when "001" =>                           --SLL
-                        jump        <= '0';
-                        Branch      <= "000";
-                        ToRegister  <= "000";
-                        MemWrite    <= '0';
-                        StoreSel    <= '0';
-                        ALUSrc      <= '1';
-                        ALUOp       <= "110";
-                        WriteReg    <= '1';
+                    when "001" =>
+                        case funct7 is
+                            when "0000001" => -- MULH (Nieuw!)
+                                jump        <= '0';
+                                Branch      <= "000";
+                                ToRegister  <= "101"; 
+                                MemWrite    <= '0';
+                                StoreSel    <= '0';
+                                ALUSrc      <= '0';
+                                ALUOp       <= "000"; -- Don't care
+                                WriteReg    <= '1';
+                            when others =>    -- SLL (Bestaand)
+                                jump        <= '0';
+                                Branch      <= "000";
+                                ToRegister  <= "000";
+                                MemWrite    <= '0';
+                                StoreSel    <= '0';
+                                ALUSrc      <= '1';
+                                ALUOp       <= "110";
+                                WriteReg    <= '1';
+                            end case;
+                    
                     when "010" =>                           --SLT
                         jump        <= '0';
                         Branch      <= "000";
