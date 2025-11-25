@@ -13,6 +13,7 @@ entity Mux_ToRegFile is
         muxIn3     :in std_logic_vector(busWidth-1 downto 0);       --PC
         muxIn4     :in std_logic_vector(busWidth-1 downto 0);       --mult
         muxIn5     :in std_logic_vector(busWidth-1 downto 0);       --PC+4
+        muxIn6     :in std_logic_vector(busWidth-1 downto 0);       --Nieuw!
         selector   :in std_logic_vector(2 downto 0);       --ToRegister
         muxOut     :out std_logic_vector(busWidth-1 downto 0)
 	);
@@ -34,6 +35,7 @@ begin
             when "011" => selected <= muxIn3;
             when "100" => selected <= muxIn4;
             when "101" => selected <= muxIn5;
+            when "110" => selected <= muxIn6;  
             when others => selected <= muxIn0;
         end case;
     end process ;

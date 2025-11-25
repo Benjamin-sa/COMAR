@@ -184,7 +184,7 @@ begin
     BRControl: Branch_Control port map (branch => Branch, signo => signo, zero => zero,PCSrc => PCSrc);
 
     MuxReg: Mux_ToRegFile port map (muxIn0 => result, muxIn1 => dataOut, muxIn2 => dataOut, muxIn3 => PCOut,
-    muxIn4 => multResult(31 downto 0), muxIn5 => PCOutPlus, selector => toRegister, muxOut => dataForReg);
+    muxIn4 => multResult(31 downto 0), muxIn5 => PCOutPlus, muxIn6 => multResult(63 downto 32), selector => toRegister, muxOut => dataForReg);
 
     Ctrl: Control port map (opcode => instruction(6 downto 0), funct3 => instruction(14 downto 12), funct7 => instruction(31 downto 25),
     jump => jump, MemWrite => memWrite, Branch => Branch, ALUOp => ALUOp, StoreSel => StoreSel, ALUSrc => ALUSrc, 

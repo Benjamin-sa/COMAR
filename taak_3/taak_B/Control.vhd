@@ -70,7 +70,7 @@ begin
                             when "0000001" => -- MULH (Nieuw!)
                                 jump        <= '0';
                                 Branch      <= "000";
-                                ToRegister  <= "101"; 
+                                ToRegister  <= "110"; 
                                 MemWrite    <= '0';
                                 StoreSel    <= '0';
                                 ALUSrc      <= '0';
