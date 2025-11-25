@@ -6,15 +6,15 @@
 .globl _start
 
 _start:
-    la t0, lengte           # t0 = adres van lengte variabele
-    lw t1, 0(t0)            # t1 = lengte van array (aantal elementen)
-    la t2, array            # t2 = basis adres van array
+    la t0, lengte           # t0 = adres lengte variabele
+    lw t1, 0(t0)            # t1 = lengte array (aantal elementen)
+    la t2, array            # t2 = basis adres array
     
     # Print originele array 
     li t3, 0                # t3 = teller
 print_origineel_lus:
     bge t3, t1, print_origineel_klaar
-    lw a0, 0(t2)            # Laad array element
+    lw a0, 0(t2)            
     li a7, 1                # Print integer
     ecall
     addi t2, t2, 4          # Volgende element
@@ -22,7 +22,7 @@ print_origineel_lus:
     j print_origineel_lus
     
 print_origineel_klaar:
-    la t2, array            # Reset naar begin van array
+    la t2, array            # Resetten 
 
     addi t3, t1, -1         # t3 = lengte - 1 (teller voor buitenste lus)
     
@@ -69,8 +69,6 @@ print_lus:
     j print_lus
     
 print_klaar:
-
-    # ====== BEREKEN MEDIAAN ======
     la t2, array            # Reset naar begin van array
     la t0, lengte
     lw t1, 0(t0)            # Laad lengte opnieuw
@@ -81,7 +79,7 @@ print_klaar:
     bnez t3, oneven_mediaan # Als oneven, spring naar oneven_mediaan
     
 even_mediaan:
-    # EVEN aantal: gemiddelde van twee middelste elementen
+    # even aantal: gemiddelde van twee middelste elementen
     srli t4, t1, 1          # t4 = lengte / 2
     addi t4, t4, -1         # t4 = (lengte / 2) - 1 (index eerste middelste)
     slli t4, t4, 2          # t4 = index * 4 (byte offset)
@@ -94,11 +92,11 @@ even_mediaan:
     j print_mediaan
     
 oneven_mediaan:
-    # ONEVEN aantal: middelste element
+    # oneven aantal: middelste element
     srli t4, t1, 1          # t4 = lengte / 2 (middelste index)
     slli t4, t4, 2          # t4 = index * 4 (byte offset)
     add t2, t2, t4          # t2 = adres van middelste element
-    lw a0, 0(t2)            # a1 = mediaan waarde
+    lw a0, 0(t2)            # a0 = mediaan waarde
 
 print_mediaan:
     # Print mediaan waarde (alleen integer)
