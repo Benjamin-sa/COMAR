@@ -119,6 +119,7 @@ architecture arch_DataPath of DataPath is
             muxIn3     :in std_logic_vector(busWidth-1 downto 0);       --PC
             muxIn4     :in std_logic_vector(busWidth-1 downto 0);       --mult
             muxIn5     :in std_logic_vector(busWidth-1 downto 0);       --PC+4
+            muxIn6     :in std_logic_vector(busWidth-1 downto 0);       --mulh
             selector   :in std_logic_vector(2 downto 0);       --ToRegister
             muxOut     :out std_logic_vector(busWidth-1 downto 0)
         );
