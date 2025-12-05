@@ -11,9 +11,10 @@ entity Mux_ToRegFile is
         muxIn1     :in std_logic_vector(busWidth-1 downto 0);       --LB
         muxIn2     :in std_logic_vector(busWidth-1 downto 0);       --LW
         muxIn3     :in std_logic_vector(busWidth-1 downto 0);       --PC
-        muxIn4     :in std_logic_vector(busWidth-1 downto 0);       --mult
+        muxIn4     :in std_logic_vector(busWidth-1 downto 0);       --zeros
         muxIn5     :in std_logic_vector(busWidth-1 downto 0);       --PC+4
-        muxIn6     :in std_logic_vector(busWidth-1 downto 0);       --Nieuw!
+        muxIn6     :in std_logic_vector(busWidth-1 downto 0);       --Mul
+        muxIn7     :in std_logic_vector(busWidth-1 downto 0);       --Mulh
         selector   :in std_logic_vector(2 downto 0);       --ToRegister
         muxOut     :out std_logic_vector(busWidth-1 downto 0)
 	);
