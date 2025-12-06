@@ -27,7 +27,7 @@ architecture arch_Mux_ToRegFile of Mux_ToRegFile is
     signal signo : std_logic;
     
 begin
-    process( selector, muxIn0, muxIn1, muxIn2, muxIn3, muxIn4, muxIn5, LB )
+    process( selector, muxIn0, muxIn1, muxIn2, muxIn3, muxIn4, muxIn5, muxIn6, muxIn7, LB )
     begin
         case selector is
             when "000" => selected <= muxIn0;
@@ -36,7 +36,8 @@ begin
             when "011" => selected <= muxIn3;
             when "100" => selected <= muxIn4;
             when "101" => selected <= muxIn5;
-            when "110" => selected <= muxIn6;  
+            when "110" => selected <= muxIn6;
+            when "111" => selected <= muxIn7;  
             when others => selected <= muxIn0;
         end case;
     end process ;

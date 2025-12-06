@@ -49,7 +49,7 @@ begin
                             when "0000001" =>               --MUL
                                 jump        <= '0';
                                 Branch      <= "000";
-                                ToRegister  <= "100";       -- Select Multiplier result
+                                ToRegister  <= "110";       -- Select Multiplier result
                                 MemWrite    <= '0';
                                 StoreSel    <= '0';
                                 ALUSrc      <= '0';         -- Don't care
@@ -70,7 +70,7 @@ begin
                             when "0000001" => -- MULH (Nieuw!)
                                 jump        <= '0';
                                 Branch      <= "000";
-                                ToRegister  <= "110"; 
+                                ToRegister  <= "111"; 
                                 MemWrite    <= '0';
                                 StoreSel    <= '0';
                                 ALUSrc      <= '0';

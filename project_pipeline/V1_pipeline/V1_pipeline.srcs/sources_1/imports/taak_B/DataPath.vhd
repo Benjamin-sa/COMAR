@@ -117,9 +117,10 @@ architecture arch_DataPath of DataPath is
             muxIn1     :in std_logic_vector(busWidth-1 downto 0);       --LB
             muxIn2     :in std_logic_vector(busWidth-1 downto 0);       --LW
             muxIn3     :in std_logic_vector(busWidth-1 downto 0);       --PC
-            muxIn4     :in std_logic_vector(busWidth-1 downto 0);       --mult
+            muxIn4     :in std_logic_vector(busWidth-1 downto 0);       --zeros
             muxIn5     :in std_logic_vector(busWidth-1 downto 0);       --PC+4
-            muxIn6     :in std_logic_vector(busWidth-1 downto 0);       --mulh
+            muxIn6     :in std_logic_vector(busWidth-1 downto 0);       --mul
+            muxIn7     :in std_logic_vector(busWidth-1 downto 0);       --mulh
             selector   :in std_logic_vector(2 downto 0);       --ToRegister
             muxOut     :out std_logic_vector(busWidth-1 downto 0)
         );
@@ -141,6 +142,19 @@ architecture arch_DataPath of DataPath is
         );
     end component;
 
+    component if_id
+        port (
+            instruction_if_in : in std_logic_vector(31 downto 0);
+            PC_if_in : in std_logic_vector(31 downto 0);
+            PCOutPlus_if_in : in std_logic_vector(31 downto 0);
+            clk : in std_logic;
+            rst : in std_logic;
+            enable : in std_logic;
+            instruction_id_out : out std_logic_vector(31 downto 0);
+            PC_id_out : out std_logic_vector(31 downto 0);
+            PCOutPlus_id_out : out std_logic_vector(31 downto 0)
+        );
+    end component;
 
     signal PCOut, PCOutPlus    : std_logic_vector(31 downto 0);    --data out from PC register
     signal instruction          : std_logic_vector(31 downto 0);    --instruction from ROM mem
@@ -161,14 +175,36 @@ architecture arch_DataPath of DataPath is
     signal newAddress           : std_logic_vector(31 downto 0);
     signal shifted              : std_logic_vector(31 downto 0);
     signal multResult           : std_logic_vector(63 downto 0);
-begin
     
+    --if_id signals
+    signal PC_id : std_logic_vector(31 downto 0);
+    signal instruction_id : std_logic_vector(31 downto 0);
+    signal if_id_enable : std_logic;
+    signal PCOutPlus_id : std_logic_vector(31 downto 0);
+    
+    
+    
+begin
+    if_id_enable <= '1'; --TIJDELIJK
     PCount: PC port map (clk => clk, rst => rst, PCIn => PCIn, PCOut => PCOut);
 
     ROM: Instruction_Mem port map (Address => PCOut(15 downto 0), instruction => instruction);
 
-    RFILE: Reg_File port map (clk => clk, writeReg => writeReg, sourceReg1 => instruction(19 downto 15),
-    sourceReg2 => instruction(24 downto 20), destinyReg => instruction(11 downto 7), data => dataForReg,
+    IFID_reg: if_id
+        port map (
+            instruction_if_in => instruction, -- uit instruction memory
+            PC_if_in => PCOut, -- PC van IF stage
+            PCOutPlus_if_in => PCOutPlus,
+            clk => clk,
+            rst => rst,
+            enable => if_id_enable,
+            instruction_id_out => instruction_id,
+            PC_id_out => PC_id,
+            PCOutPlus_id_out => PCOutPlus_id
+        );
+
+    RFILE: Reg_File port map (clk => clk, writeReg => writeReg, sourceReg1 => instruction_id(19 downto 15),
+    sourceReg2 => instruction_id(24 downto 20), destinyReg => instruction_id(11 downto 7), data => dataForReg,
     readData1 => regData1, readData2 => regData2);
 
     Mux0: Mux port map (muxIn0 => immediate, muxIn1 => regData2, selector => ALUSrc, muxOut => op2);
@@ -187,7 +223,7 @@ begin
     MuxReg: Mux_ToRegFile port map (muxIn0 => result, muxIn1 => dataOut, muxIn2 => dataOut, muxIn3 => PCOut,
     muxIn4 => (others => '0'), muxIn5 => PCOutPlus, muxIn6 => multResult(31 downto 0), muxIn7 => multResult(63 downto 32), selector => toRegister, muxOut => dataForReg);
 
-    Ctrl: Control port map (opcode => instruction(6 downto 0), funct3 => instruction(14 downto 12), funct7 => instruction(31 downto 25),
+    Ctrl: Control port map (opcode => instruction_id(6 downto 0), funct3 => instruction_id(14 downto 12), funct7 => instruction_id(31 downto 25),
     jump => jump, MemWrite => memWrite, Branch => Branch, ALUOp => ALUOp, StoreSel => StoreSel, ALUSrc => ALUSrc, 
     WriteReg => WriteReg, ToRegister => toRegister);
 
@@ -195,7 +231,7 @@ begin
 
     Mux3: Mux port map (muxIn0 => PCOutPlus, muxIn1 => newAddress, selector => PCSrc, muxOut => PCIn);
     
-    Imm: Immediate_Generator port map (instruction => instruction, immediate => immediate);
+    Imm: Immediate_Generator port map (instruction => instruction_id, immediate => immediate);
 
     regData2Anded <= regData2 and X"000000FF";
     PCOutPlus <= PCOut + 4;
