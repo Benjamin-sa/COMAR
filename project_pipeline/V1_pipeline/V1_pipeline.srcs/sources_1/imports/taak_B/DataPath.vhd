@@ -155,6 +155,44 @@ architecture arch_DataPath of DataPath is
             PCOutPlus_id_out : out std_logic_vector(31 downto 0)
         );
     end component;
+    
+    component id_ex
+    port (
+        clk      : in  std_logic;
+        rst      : in  std_logic;
+        enable   : in  std_logic;
+        PC_id_in         : in  std_logic_vector(31 downto 0);
+        PCOutPlus_id_in  : in  std_logic_vector(31 downto 0);
+        regData1_id_in   : in  std_logic_vector(31 downto 0);
+        regData2_id_in   : in  std_logic_vector(31 downto 0);
+        imm_id_in        : in  std_logic_vector(31 downto 0);
+        jump_id_in       : in  std_logic;
+        memWrite_id_in   : in  std_logic;
+        StoreSel_id_in   : in  std_logic;
+        ALUSrc_id_in     : in  std_logic;
+        Branch_id_in     : in  std_logic_vector(2 downto 0);
+        ALUOp_id_in      : in  std_logic_vector(2 downto 0);
+        inst_rd_id_in : in  std_logic_vector(4 downto 0);
+        WriteReg_id_in   : in  std_logic;
+        ToRegister_id_in : in  std_logic_vector(2 downto 0);
+        
+        PC_ex_out        : out std_logic_vector(31 downto 0);
+        PCOutPlus_ex_out : out std_logic_vector(31 downto 0);
+        regData1_ex_out  : out std_logic_vector(31 downto 0);
+        regData2_ex_out  : out std_logic_vector(31 downto 0);
+        imm_ex_out       : out std_logic_vector(31 downto 0);
+        jump_ex_out      : out std_logic;
+        memWrite_ex_out  : out std_logic;
+        StoreSel_ex_out  : out std_logic;
+        ALUSrc_ex_out    : out std_logic;
+        Branch_ex_out    : out std_logic_vector(2 downto 0);
+        ALUOp_ex_out     : out std_logic_vector(2 downto 0);
+        inst_rd_ex_out : out  std_logic_vector(4 downto 0);
+        WriteReg_ex_out   : out std_logic;
+        ToRegister_ex_out : out std_logic_vector(2 downto 0)
+    );
+end component;
+    
 
     signal PCOut, PCOutPlus    : std_logic_vector(31 downto 0);    --data out from PC register
     signal instruction          : std_logic_vector(31 downto 0);    --instruction from ROM mem
@@ -182,6 +220,20 @@ architecture arch_DataPath of DataPath is
     signal if_id_enable : std_logic;
     signal PCOutPlus_id : std_logic_vector(31 downto 0);
     
+    --id_ex signals
+    signal PC_ex, PCOutPlus_ex     : std_logic_vector(31 downto 0);
+    signal regData1_ex, regData2_ex: std_logic_vector(31 downto 0);
+    signal imm_ex                  : std_logic_vector(31 downto 0);
+    
+    signal jump_ex, memWrite_ex    : std_logic;
+    signal StoreSel_ex, ALUSrc_ex  : std_logic;
+    signal Branch_ex, ALUOp_ex     : std_logic_vector(2 downto 0);
+    signal id_ex_enable            : std_logic;
+    signal inst_rd_ex              : std_logic_vector(4 downto 0);
+    signal WriteReg_ex             : std_logic;
+    signal ToRegister_ex           : std_logic_vector(2 downto 0);
+    signal mux1_out                : std_logic_vector(31 downto 0);
+    
     
     
 begin
@@ -189,6 +241,8 @@ begin
     PCount: PC port map (clk => clk, rst => rst, PCIn => PCIn, PCOut => PCOut);
 
     ROM: Instruction_Mem port map (Address => PCOut(15 downto 0), instruction => instruction);
+    
+    PCOutPlus <= PCOut + 4;
 
     IFID_reg: if_id
         port map (
@@ -202,19 +256,80 @@ begin
             PC_id_out => PC_id,
             PCOutPlus_id_out => PCOutPlus_id
         );
-
+    -- ID-stage gebruikt nu *_id signalen
     RFILE: Reg_File port map (clk => clk, writeReg => writeReg, sourceReg1 => instruction_id(19 downto 15),
     sourceReg2 => instruction_id(24 downto 20), destinyReg => instruction_id(11 downto 7), data => dataForReg,
     readData1 => regData1, readData2 => regData2);
 
-    Mux0: Mux port map (muxIn0 => immediate, muxIn1 => regData2, selector => ALUSrc, muxOut => op2);
+    Imm: Immediate_Generator port map (instruction => instruction_id, immediate => immediate);
+
+    Ctrl: Control port map (opcode => instruction_id(6 downto 0), funct3 => instruction_id(14 downto 12), funct7 => instruction_id(31 downto 25),
+    jump => jump, MemWrite => memWrite, Branch => Branch, ALUOp => ALUOp, StoreSel => StoreSel, ALUSrc => ALUSrc, 
+    WriteReg => WriteReg, ToRegister => toRegister);
     
-    ALU: ALU_RV32 port map (operator1 => regData1, operator2 => op2, ALUOp => ALUOp, 
+    IDEX_reg: id_ex
+    port map (
+        clk              => clk,
+        rst              => rst,
+        enable           => id_ex_enable,
+
+        -- data uit ID
+        regData1_id_in   => regData1,
+        regData2_id_in   => regData2,
+        imm_id_in  => immediate,
+        PC_id_in         => PC_id,
+        PCOutPlus_id_in  => PCOutPlus_id,
+        inst_rd_id_in => instruction_id(11 downto 7),
+
+        -- control uit ID (rechtstreeks uit control)
+        ALUOp_id_in       => ALUOp,
+        ALUSrc_id_in      => ALUSrc,
+        Branch_id_in      => Branch,
+        jump_id_in        => jump,
+        memWrite_id_in    => MemWrite,
+        StoreSel_id_in    => StoreSel,
+        WriteReg_id_in    => WriteReg,
+        ToRegister_id_in  => toRegister,
+
+        -- data naar EX
+        regData1_ex_out   => regData1_ex,
+        regData2_ex_out   => regData2_ex,
+        imm_ex_out  => imm_ex,
+        PC_ex_out         => PC_ex,
+        PCOutPlus_ex_out  => PCOutPlus_ex,
+        inst_rd_ex_out=> inst_rd_ex,
+
+        -- control naar EX
+        ALUOp_ex_out      => ALUOp_ex,
+        ALUSrc_ex_out     => ALUSrc_ex,
+        Branch_ex_out     => Branch_ex,
+        jump_ex_out       => jump_ex,
+        MemWrite_ex_out   => MemWrite_ex,
+        StoreSel_ex_out   => StoreSel_ex,
+        WriteReg_ex_out   => WriteReg_ex,
+        ToRegister_ex_out => ToRegister_ex
+    );
+    
+
+    Mux0: Mux port map (muxIn0 => imm_ex, muxIn1 => regData2_ex, selector => ALUSrc_ex, muxOut => op2);
+    
+    ALU: ALU_RV32 port map (operator1 => regData1_ex, operator2 => op2, ALUOp => ALUOp_ex, 
     result => result, zero => zero, carryOut => carry, signo => signo);
+    
+    ALU_result <= result;
 
-    Mult: multiplier port map (operator1 => regData1, operator2 => regData2, product => multResult);
+    Mult: multiplier port map (operator1 => regData1_ex, operator2 => regData2_ex, product => multResult);
 
-    Mux1: Mux port map (muxIn0 => regData2, muxIn1 => regData2Anded, selector => StoreSel, muxOut => dataIn);
+    regData2Anded <= regData2_ex and X"000000FF";
+
+    Mux1: Mux port map (muxIn0 => regData2_ex, muxIn1 => regData2Anded, selector => StoreSel_ex, muxOut => mux1_out);
+
+    Mux2: Mux port map (muxIn0 => imm_ex, muxIn1 => result, selector => jump_ex, muxOut => offset);
+
+    shifted <= offset(30 downto 0) & '0';
+    newAddress <= PC_ex + shifted;
+
+    -- EX/MEM reg
 
     RAM: Data_Mem port map (clk => clk, writeEn => memWrite, Address => result(3 downto 0), dataIn => dataIn, dataOut => dataOut);
 
@@ -223,21 +338,6 @@ begin
     MuxReg: Mux_ToRegFile port map (muxIn0 => result, muxIn1 => dataOut, muxIn2 => dataOut, muxIn3 => PCOut,
     muxIn4 => (others => '0'), muxIn5 => PCOutPlus, muxIn6 => multResult(31 downto 0), muxIn7 => multResult(63 downto 32), selector => toRegister, muxOut => dataForReg);
 
-    Ctrl: Control port map (opcode => instruction_id(6 downto 0), funct3 => instruction_id(14 downto 12), funct7 => instruction_id(31 downto 25),
-    jump => jump, MemWrite => memWrite, Branch => Branch, ALUOp => ALUOp, StoreSel => StoreSel, ALUSrc => ALUSrc, 
-    WriteReg => WriteReg, ToRegister => toRegister);
-
-    Mux2: Mux port map (muxIn0 => immediate, muxIn1 => result, selector => jump, muxOut => offset);
-
     Mux3: Mux port map (muxIn0 => PCOutPlus, muxIn1 => newAddress, selector => PCSrc, muxOut => PCIn);
-    
-    Imm: Immediate_Generator port map (instruction => instruction_id, immediate => immediate);
-
-    regData2Anded <= regData2 and X"000000FF";
-    PCOutPlus <= PCOut + 4;
-    shifted <= offset(30 downto 0) & '0';
-    newAddress <= PCOut + shifted;
-    
-    ALU_result <= result;
 
 end architecture arch_DataPath;

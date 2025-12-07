@@ -1,0 +1,20 @@
+# compile vhdl design source files
+vhdl xil_defaultlib  \
+"../../../../V1_pipeline.srcs/sources_1/imports/taak_B/ALU_RV32.vhd" \
+"../../../../V1_pipeline.srcs/sources_1/imports/taak_B/Branch_Control.vhd" \
+"../../../../V1_pipeline.srcs/sources_1/imports/taak_B/Control.vhd" \
+"../../../../V1_pipeline.srcs/sources_1/imports/taak_B/DataPath.vhd" \
+"../../../../V1_pipeline.srcs/sources_1/imports/taak_B/Data_Mem.vhd" \
+"../../../../V1_pipeline.srcs/sources_1/imports/taak_B/FullAdder.vhd" \
+"../../../../V1_pipeline.srcs/sources_1/new/IF_ID.vhd" \
+"../../../../V1_pipeline.srcs/sources_1/imports/taak_B/Immediate_Generator.vhd" \
+"../../../../V1_pipeline.srcs/sources_1/imports/taak_B/instruction_mem.vhd" \
+"../../../../V1_pipeline.srcs/sources_1/imports/taak_B/Mux.vhd" \
+"../../../../V1_pipeline.srcs/sources_1/imports/taak_B/Mux_ToRegFile.vhd" \
+"../../../../V1_pipeline.srcs/sources_1/imports/taak_B/PC.vhd" \
+"../../../../V1_pipeline.srcs/sources_1/imports/taak_B/Reg_File.vhd" \
+"../../../../V1_pipeline.srcs/sources_1/imports/taak_B/multiplier.vhd" \
+"../../../../V1_pipeline.srcs/sim_1/imports/testbenches/DataPath_tb.vhd" \
+
+# Do not sort compile order
+nosort
