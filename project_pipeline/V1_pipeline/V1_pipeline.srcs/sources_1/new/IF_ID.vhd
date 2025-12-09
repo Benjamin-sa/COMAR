@@ -24,7 +24,7 @@ begin
     process(clk)
     begin
         if rising_edge(clk) then
-            if rst = '1' then
+            if rst = '0' then
                 PC_id_out    <= (others => '0');
                 instruction_id_out <= (others => '0');
                 PCOutPlus_id_out <= (others => '0');

@@ -1,6 +1,8 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
+--to do : Memread meegeven 
+
 entity id_ex is
     port(
         clk         : in  std_logic;

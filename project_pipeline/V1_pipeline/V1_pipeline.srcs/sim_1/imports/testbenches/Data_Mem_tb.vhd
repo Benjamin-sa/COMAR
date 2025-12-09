@@ -15,7 +15,7 @@ architecture arch_Data_Mem of Data_Mem_tb is
   -- component ports
   signal clk     : std_logic := '0';
   signal writeEn : std_logic := '0';
-  signal Address : std_logic_vector(3 downto 0) := (others => '0');
+  signal Address : std_logic_vector(7 downto 0) := (others => '0');
   signal dataIn  : std_logic_vector(31 downto 0) := (others => '0');
   signal dataOut : std_logic_vector(31 downto 0) := (others => '0');
 

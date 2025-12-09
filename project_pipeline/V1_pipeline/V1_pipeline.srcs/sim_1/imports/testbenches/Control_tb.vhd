@@ -25,6 +25,7 @@ architecture arch_Control of Control_tb is
   signal StoreSel   : std_logic;
   signal ALUSrc     : std_logic;
   signal WriteReg   : std_logic;
+  signal Memread    : std_logic;
 
   constant period   : time := 40 ns;
 
@@ -46,7 +47,9 @@ begin  -- architecture arch_Control
       ALUOp      => ALUOp,
       StoreSel   => StoreSel,
       ALUSrc     => ALUSrc,
-      WriteReg   => WriteReg);
+      WriteReg   => WriteReg,
+      Memread    => Memread
+      );
 
   -- waveform generation
   WaveGen_Proc: process

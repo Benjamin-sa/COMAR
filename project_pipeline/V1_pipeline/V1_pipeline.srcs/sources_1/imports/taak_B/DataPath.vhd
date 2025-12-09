@@ -67,7 +67,7 @@ architecture arch_DataPath of DataPath is
         port (
             clk     :in std_logic;
             writeEn :in std_logic;
-            Address :in std_logic_vector(3 downto 0);
+            Address :in std_logic_vector(7 downto 0);
             dataIn  :in std_logic_vector(31 downto 0);
             dataOut :out std_logic_vector(31 downto 0)
         );
@@ -138,7 +138,10 @@ architecture arch_DataPath of DataPath is
             ALUOp       : out std_logic_vector(2 downto 0);
             StoreSel    : out std_logic;
             ALUSrc      : out std_logic;
-            WriteReg    : out std_logic
+            WriteReg    : out std_logic;
+            
+            --toevoeging voor registers
+            Memread     : out std_logic
         );
     end component;
 
@@ -299,6 +302,8 @@ architecture arch_DataPath of DataPath is
     signal ToRegister_mem          : std_logic_vector(2 downto 0);
     signal jump_mem                : std_logic;
     
+    --signaal voor RAM 
+    signal Memread : std_logic;
     
     
 begin
@@ -332,7 +337,7 @@ begin
 
     Ctrl: Control port map (opcode => instruction_id(6 downto 0), funct3 => instruction_id(14 downto 12), funct7 => instruction_id(31 downto 25),
     jump => jump, MemWrite => memWrite, Branch => Branch, ALUOp => ALUOp, StoreSel => StoreSel, ALUSrc => ALUSrc, 
-    WriteReg => WriteReg, ToRegister => toRegister);
+    WriteReg => WriteReg, ToRegister => toRegister, Memread => Memread);
     
     IDEX_reg: id_ex
     port map (
@@ -442,7 +447,7 @@ begin
     );
 
     -- MEM stage: now uses *_mem signals
-    RAM: Data_Mem port map (clk => clk, writeEn => memWrite_mem, Address => ALU_result_mem(3 downto 0), dataIn => regData2_mem, dataOut => dataOut);
+    RAM: Data_Mem port map (clk => clk, writeEn => memWrite, Address => result(7 downto 0), dataIn => dataIn, dataOut => dataOut);
 
     BRControl: Branch_Control port map (branch => Branch_mem, signo => signo_mem, zero => zero_mem, PCSrc => PCSrc);
 

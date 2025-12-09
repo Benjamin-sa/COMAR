@@ -13,7 +13,7 @@ entity Data_Mem is
     port (
         clk     :in std_logic;
         writeEn :in std_logic;
-        Address :in std_logic_vector(3 downto 0);
+        Address :in std_logic_vector(7 downto 0);
         dataIn  :in std_logic_vector(31 downto 0);
         dataOut :out std_logic_vector(31 downto 0)
     );
@@ -21,7 +21,7 @@ end entity Data_Mem;
 
 architecture arch_Data_Mem of Data_Mem is
 
-    type RAM is array (15 downto 0) of std_logic_vector(7 downto 0);
+    type RAM is array (255 downto 0) of std_logic_vector(7 downto 0);
     signal MEM : RAM := (others => (others => '0'));
 begin
     process(clk)
