@@ -211,7 +211,7 @@ architecture arch_DataPath of DataPath is
         regData2_ex_in      : in  std_logic_vector(31 downto 0);
         PC_ex_in            : in  std_logic_vector(31 downto 0);
         PCOutPlus_ex_in     : in  std_logic_vector(31 downto 0);
-        inst_rd_ex_in       : in  std_logic_vector(4 downto 0);
+        inst_rd_ex_in       : in  std_logic_vector(31 downto 0);
         multResult_ex_in    : in  std_logic_vector(63 downto 0);
         newAddress_ex_in    : in  std_logic_vector(31 downto 0);
         zero_ex_in          : in  std_logic;
