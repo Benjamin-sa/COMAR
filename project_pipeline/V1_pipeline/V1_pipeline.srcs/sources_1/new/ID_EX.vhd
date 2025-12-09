@@ -11,9 +11,11 @@ entity id_ex is
         PC_id_in            : in  std_logic_vector(31 downto 0);
         inst_rd_id_in       : in  std_logic_vector(4 downto 0);
         PCOutPlus_id_in     : in  std_logic_vector(31 downto 0);
+        instruction_id_in   : in std_logic_vector(31 downto 0);
         
-        rD1_id_in           : in  std_logic_vector(31 downto 0);
-        rD2_id_in           : in  std_logic_vector(31 downto 0);
+        
+        regData1_id_in           : in  std_logic_vector(31 downto 0);
+        regData2_id_in           : in  std_logic_vector(31 downto 0);
         imm_id_in           : in  std_logic_vector(31 downto 0);
         
         -- control
@@ -30,9 +32,8 @@ entity id_ex is
         PC_ex_out           : out std_logic_vector(31 downto 0);
         inst_rd_ex_out  : out std_logic_vector(31 downto 0);
         PCOutPlus_ex_out     : out  std_logic_vector(31 downto 0);
-        
-        rD1_ex_out           : out  std_logic_vector(31 downto 0);
-        rD2_ex_out           : out  std_logic_vector(31 downto 0);
+        regData1_ex_out      : out  std_logic_vector(31 downto 0);
+        regData2_ex_out      : out  std_logic_vector(31 downto 0);
         imm_ex_out           : out  std_logic_vector(31 downto 0);
         
         --control
@@ -54,10 +55,10 @@ begin
         if rising_edge(clk) then
             if rst = '1' then
                 PC_ex_out    <= (others => '0');
-                instruction_ex_out <= (others => '0');
+                inst_rd_ex_out <= (others => '0');
                 PCOutPlus_ex_out <= (others => '0');
-                rD1_ex_out <= (others => '0');
-                rD2_ex_out <= (others => '0');
+                regData1_ex_out <= (others => '0');
+                regData2_ex_out <= (others => '0');
                 imm_ex_out <= (others => '0');
                 
                 jump_ex_out      <= '0';
@@ -71,10 +72,10 @@ begin
     
             elsif enable = '1' then
                 PC_ex_out    <= PC_id_in;
-                instruction_ex_out <= instruction_id_in;
+                inst_rd_ex_out <= instruction_id_in;
                 PCOutPlus_ex_out <= PCOutPlus_id_in;
-                rD1_ex_out <=  rD1_id_in;
-                rD2_ex_out <=  rD2_id_in;
+                regData1_ex_out <=  regData1_id_in;
+                regData2_ex_out <=  regData2_id_in;
                 imm_ex_out <=  imm_id_in;
                 
                 jump_ex_out      <= jump_id_in;
@@ -89,4 +90,4 @@ begin
         end if;
     end process;
 
-end Behavioral;
+end RTL;

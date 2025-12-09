@@ -161,33 +161,41 @@ architecture arch_DataPath of DataPath is
         clk      : in  std_logic;
         rst      : in  std_logic;
         enable   : in  std_logic;
+        
         PC_id_in         : in  std_logic_vector(31 downto 0);
+        inst_rd_id_in : in  std_logic_vector(4 downto 0);
         PCOutPlus_id_in  : in  std_logic_vector(31 downto 0);
+        instruction_id_in   : in std_logic_vector(31 downto 0);
+        
         regData1_id_in   : in  std_logic_vector(31 downto 0);
         regData2_id_in   : in  std_logic_vector(31 downto 0);
         imm_id_in        : in  std_logic_vector(31 downto 0);
+        
         jump_id_in       : in  std_logic;
         memWrite_id_in   : in  std_logic;
         StoreSel_id_in   : in  std_logic;
         ALUSrc_id_in     : in  std_logic;
         Branch_id_in     : in  std_logic_vector(2 downto 0);
         ALUOp_id_in      : in  std_logic_vector(2 downto 0);
-        inst_rd_id_in : in  std_logic_vector(4 downto 0);
         WriteReg_id_in   : in  std_logic;
         ToRegister_id_in : in  std_logic_vector(2 downto 0);
         
-        PC_ex_out        : out std_logic_vector(31 downto 0);
-        PCOutPlus_ex_out : out std_logic_vector(31 downto 0);
-        regData1_ex_out  : out std_logic_vector(31 downto 0);
-        regData2_ex_out  : out std_logic_vector(31 downto 0);
-        imm_ex_out       : out std_logic_vector(31 downto 0);
+         -- outputs to EX stage
+        PC_ex_out           : out std_logic_vector(31 downto 0);
+        inst_rd_ex_out  : out std_logic_vector(31 downto 0);
+        PCOutPlus_ex_out     : out  std_logic_vector(31 downto 0);
+        
+        regData1_ex_out           : out  std_logic_vector(31 downto 0);
+        regData2_ex_out           : out  std_logic_vector(31 downto 0);
+        imm_ex_out           : out  std_logic_vector(31 downto 0);
+        
+        --control
         jump_ex_out      : out std_logic;
         memWrite_ex_out  : out std_logic;
         StoreSel_ex_out  : out std_logic;
         ALUSrc_ex_out    : out std_logic;
         Branch_ex_out    : out std_logic_vector(2 downto 0);
         ALUOp_ex_out     : out std_logic_vector(2 downto 0);
-        inst_rd_ex_out : out  std_logic_vector(4 downto 0);
         WriteReg_ex_out   : out std_logic;
         ToRegister_ex_out : out std_logic_vector(2 downto 0)
     );
@@ -269,7 +277,7 @@ architecture arch_DataPath of DataPath is
     signal StoreSel_ex, ALUSrc_ex  : std_logic;
     signal Branch_ex, ALUOp_ex     : std_logic_vector(2 downto 0);
     signal id_ex_enable            : std_logic;
-    signal inst_rd_ex              : std_logic_vector(4 downto 0);
+    signal inst_rd_ex              : std_logic_vector(31 downto 0);
     signal WriteReg_ex             : std_logic;
     signal ToRegister_ex           : std_logic_vector(2 downto 0);
     signal mux1_out                : std_logic_vector(31 downto 0);
@@ -337,8 +345,9 @@ begin
         regData2_id_in   => regData2,
         imm_id_in  => immediate,
         PC_id_in         => PC_id,
-        PCOutPlus_id_in  => PCOutPlus_id,
+        PCOutPlus_id_in  => PCOutPlus_id, 
         inst_rd_id_in => instruction_id(11 downto 7),
+        instruction_id_in => instruction_id,
 
         -- control uit ID (rechtstreeks uit control)
         ALUOp_id_in       => ALUOp,
