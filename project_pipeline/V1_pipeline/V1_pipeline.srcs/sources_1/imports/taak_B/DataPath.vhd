@@ -316,7 +316,7 @@ begin
             PCOutPlus_id_out => PCOutPlus_id
         );
     -- ID-stage gebruikt nu *_id signalen
-    RFILE:   port map (clk => clk, writeReg => writeReg, sourceReg1 => instruction_id(19 downto 15),
+    RFILE : reg_file port map (clk => clk, writeReg => writeReg, sourceReg1 => instruction_id(19 downto 15),
     sourceReg2 => instruction_id(24 downto 20), destinyReg => instruction_id(11 downto 7), data => dataForReg,
     readData1 => regData1, readData2 => regData2);
 
