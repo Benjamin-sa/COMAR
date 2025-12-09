@@ -191,7 +191,47 @@ architecture arch_DataPath of DataPath is
         WriteReg_ex_out   : out std_logic;
         ToRegister_ex_out : out std_logic_vector(2 downto 0)
     );
-end component;
+    end component;
+    
+    component ex_mem
+    port (
+        clk                 : in  std_logic;
+        rst                 : in  std_logic;
+        enable              : in  std_logic;
+        -- Data inputs from EX stage
+        ALU_result_ex_in    : in  std_logic_vector(31 downto 0);
+        regData2_ex_in      : in  std_logic_vector(31 downto 0);
+        PC_ex_in            : in  std_logic_vector(31 downto 0);
+        PCOutPlus_ex_in     : in  std_logic_vector(31 downto 0);
+        inst_rd_ex_in       : in  std_logic_vector(4 downto 0);
+        multResult_ex_in    : in  std_logic_vector(63 downto 0);
+        newAddress_ex_in    : in  std_logic_vector(31 downto 0);
+        zero_ex_in          : in  std_logic;
+        signo_ex_in         : in  std_logic;
+        -- Control inputs from EX stage
+        memWrite_ex_in      : in  std_logic;
+        Branch_ex_in        : in  std_logic_vector(2 downto 0);
+        WriteReg_ex_in      : in  std_logic;
+        ToRegister_ex_in    : in  std_logic_vector(2 downto 0);
+        jump_ex_in          : in  std_logic;
+        -- Data outputs to MEM stage
+        ALU_result_mem_out  : out std_logic_vector(31 downto 0);
+        regData2_mem_out    : out std_logic_vector(31 downto 0);
+        PC_mem_out          : out std_logic_vector(31 downto 0);
+        PCOutPlus_mem_out   : out std_logic_vector(31 downto 0);
+        inst_rd_mem_out     : out std_logic_vector(4 downto 0);
+        multResult_mem_out  : out std_logic_vector(63 downto 0);
+        newAddress_mem_out  : out std_logic_vector(31 downto 0);
+        zero_mem_out        : out std_logic;
+        signo_mem_out       : out std_logic;
+        -- Control outputs to MEM stage
+        memWrite_mem_out    : out std_logic;
+        Branch_mem_out      : out std_logic_vector(2 downto 0);
+        WriteReg_mem_out    : out std_logic;
+        ToRegister_mem_out  : out std_logic_vector(2 downto 0);
+        jump_mem_out        : out std_logic
+    );
+    end component;
     
 
     signal PCOut, PCOutPlus    : std_logic_vector(31 downto 0);    --data out from PC register
@@ -234,10 +274,29 @@ end component;
     signal ToRegister_ex           : std_logic_vector(2 downto 0);
     signal mux1_out                : std_logic_vector(31 downto 0);
     
+    --ex_mem signals
+    signal ex_mem_enable           : std_logic;
+    signal ALU_result_mem          : std_logic_vector(31 downto 0);
+    signal regData2_mem            : std_logic_vector(31 downto 0);
+    signal PC_mem                  : std_logic_vector(31 downto 0);
+    signal PCOutPlus_mem           : std_logic_vector(31 downto 0);
+    signal inst_rd_mem             : std_logic_vector(4 downto 0);
+    signal multResult_mem          : std_logic_vector(63 downto 0);
+    signal newAddress_mem          : std_logic_vector(31 downto 0);
+    signal zero_mem                : std_logic;
+    signal signo_mem               : std_logic;
+    signal memWrite_mem            : std_logic;
+    signal Branch_mem              : std_logic_vector(2 downto 0);
+    signal WriteReg_mem            : std_logic;
+    signal ToRegister_mem          : std_logic_vector(2 downto 0);
+    signal jump_mem                : std_logic;
+    
     
     
 begin
     if_id_enable <= '1'; --TIJDELIJK
+    id_ex_enable <= '1'; --TIJDELIJK
+    ex_mem_enable <= '1'; --TIJDELIJK
     PCount: PC port map (clk => clk, rst => rst, PCIn => PCIn, PCOut => PCOut);
 
     ROM: Instruction_Mem port map (Address => PCOut(15 downto 0), instruction => instruction);
@@ -329,15 +388,58 @@ begin
     shifted <= offset(30 downto 0) & '0';
     newAddress <= PC_ex + shifted;
 
-    -- EX/MEM reg
+    -- EX/MEM pipeline register
+    EXMEM_reg: ex_mem
+    port map (
+        clk                 => clk,
+        rst                 => rst,
+        enable              => ex_mem_enable,
+        
+        -- Data inputs from EX stage
+        ALU_result_ex_in    => result,
+        regData2_ex_in      => mux1_out,
+        PC_ex_in            => PC_ex,
+        PCOutPlus_ex_in     => PCOutPlus_ex,
+        inst_rd_ex_in       => inst_rd_ex,
+        multResult_ex_in    => multResult,
+        newAddress_ex_in    => newAddress,
+        zero_ex_in          => zero,
+        signo_ex_in         => signo,
+        
+        -- Control inputs from EX stage
+        memWrite_ex_in      => memWrite_ex,
+        Branch_ex_in        => Branch_ex,
+        WriteReg_ex_in      => WriteReg_ex,
+        ToRegister_ex_in    => ToRegister_ex,
+        jump_ex_in          => jump_ex,
+        
+        -- Data outputs to MEM stage
+        ALU_result_mem_out  => ALU_result_mem,
+        regData2_mem_out    => regData2_mem,
+        PC_mem_out          => PC_mem,
+        PCOutPlus_mem_out   => PCOutPlus_mem,
+        inst_rd_mem_out     => inst_rd_mem,
+        multResult_mem_out  => multResult_mem,
+        newAddress_mem_out  => newAddress_mem,
+        zero_mem_out        => zero_mem,
+        signo_mem_out       => signo_mem,
+        
+        -- Control outputs to MEM stage
+        memWrite_mem_out    => memWrite_mem,
+        Branch_mem_out      => Branch_mem,
+        WriteReg_mem_out    => WriteReg_mem,
+        ToRegister_mem_out  => ToRegister_mem,
+        jump_mem_out        => jump_mem
+    );
 
-    RAM: Data_Mem port map (clk => clk, writeEn => memWrite, Address => result(3 downto 0), dataIn => dataIn, dataOut => dataOut);
+    -- MEM stage: now uses *_mem signals
+    RAM: Data_Mem port map (clk => clk, writeEn => memWrite_mem, Address => ALU_result_mem(3 downto 0), dataIn => regData2_mem, dataOut => dataOut);
 
-    BRControl: Branch_Control port map (branch => Branch, signo => signo, zero => zero,PCSrc => PCSrc);
+    BRControl: Branch_Control port map (branch => Branch_mem, signo => signo_mem, zero => zero_mem, PCSrc => PCSrc);
 
-    MuxReg: Mux_ToRegFile port map (muxIn0 => result, muxIn1 => dataOut, muxIn2 => dataOut, muxIn3 => PCOut,
-    muxIn4 => (others => '0'), muxIn5 => PCOutPlus, muxIn6 => multResult(31 downto 0), muxIn7 => multResult(63 downto 32), selector => toRegister, muxOut => dataForReg);
+    MuxReg: Mux_ToRegFile port map (muxIn0 => ALU_result_mem, muxIn1 => dataOut, muxIn2 => dataOut, muxIn3 => PC_mem,
+    muxIn4 => (others => '0'), muxIn5 => PCOutPlus_mem, muxIn6 => multResult_mem(31 downto 0), muxIn7 => multResult_mem(63 downto 32), selector => ToRegister_mem, muxOut => dataForReg);
 
-    Mux3: Mux port map (muxIn0 => PCOutPlus, muxIn1 => newAddress, selector => PCSrc, muxOut => PCIn);
+    Mux3: Mux port map (muxIn0 => PCOutPlus, muxIn1 => newAddress_mem, selector => PCSrc, muxOut => PCIn);
 
 end architecture arch_DataPath;
