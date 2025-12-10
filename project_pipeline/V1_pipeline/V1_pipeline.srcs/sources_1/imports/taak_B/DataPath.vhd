@@ -280,7 +280,7 @@ architecture arch_DataPath of DataPath is
     signal StoreSel_ex, ALUSrc_ex  : std_logic;
     signal Branch_ex, ALUOp_ex     : std_logic_vector(2 downto 0);
     signal id_ex_enable            : std_logic;
-    signal inst_rd_ex              : std_logic_vector(31 downto 0);
+    signal inst_rd_ex              : std_logic_vector(4 downto 0);
     signal WriteReg_ex             : std_logic;
     signal ToRegister_ex           : std_logic_vector(2 downto 0);
     signal mux1_out                : std_logic_vector(31 downto 0);
@@ -402,6 +402,10 @@ begin
     shifted <= offset(30 downto 0) & '0';
     newAddress <= PC_ex + shifted;
 
+    BRControl: Branch_Control port map (branch => Branch_mem, signo => signo_mem, zero => zero_mem, PCSrc => PCSrc);
+
+    Mux3: Mux port map (muxIn0 => PCOutPlus, muxIn1 => newAddress_mem, selector => PCSrc, muxOut => PCIn);
+
     -- EX/MEM pipeline register
     EXMEM_reg: ex_mem
     port map (
@@ -447,13 +451,9 @@ begin
     );
 
     -- MEM stage: now uses *_mem signals
-    RAM: Data_Mem port map (clk => clk, writeEn => memWrite, Address => result(7 downto 0), dataIn => dataIn, dataOut => dataOut);
-
-    BRControl: Branch_Control port map (branch => Branch_mem, signo => signo_mem, zero => zero_mem, PCSrc => PCSrc);
+    RAM: Data_Mem port map (clk => clk, writeEn => memWrite_mem, Address => ALU_result_mem(7 downto 0), dataIn => regData2_mem, dataOut => dataOut);
 
     MuxReg: Mux_ToRegFile port map (muxIn0 => ALU_result_mem, muxIn1 => dataOut, muxIn2 => dataOut, muxIn3 => PC_mem,
     muxIn4 => (others => '0'), muxIn5 => PCOutPlus_mem, muxIn6 => multResult_mem(31 downto 0), muxIn7 => multResult_mem(63 downto 32), selector => ToRegister_mem, muxOut => dataForReg);
-
-    Mux3: Mux port map (muxIn0 => PCOutPlus, muxIn1 => newAddress_mem, selector => PCSrc, muxOut => PCIn);
 
 end architecture arch_DataPath;
