@@ -185,7 +185,7 @@ architecture arch_DataPath of DataPath is
         
          -- outputs to EX stage
         PC_ex_out           : out std_logic_vector(31 downto 0);
-        inst_rd_ex_out  : out std_logic_vector(31 downto 0);
+        inst_rd_ex_out  : out std_logic_vector(4 downto 0);
         PCOutPlus_ex_out     : out  std_logic_vector(31 downto 0);
         
         regData1_ex_out           : out  std_logic_vector(31 downto 0);
@@ -214,7 +214,7 @@ architecture arch_DataPath of DataPath is
         regData2_ex_in      : in  std_logic_vector(31 downto 0);
         PC_ex_in            : in  std_logic_vector(31 downto 0);
         PCOutPlus_ex_in     : in  std_logic_vector(31 downto 0);
-        inst_rd_ex_in       : in  std_logic_vector(31 downto 0);
+        inst_rd_ex_in       : in  std_logic_vector(4 downto 0);
         multResult_ex_in    : in  std_logic_vector(63 downto 0);
         newAddress_ex_in    : in  std_logic_vector(31 downto 0);
         zero_ex_in          : in  std_logic;
@@ -244,6 +244,36 @@ architecture arch_DataPath of DataPath is
     );
     end component;
     
+    component mem_wb
+    port (
+        clk : in std_logic;
+        rst : in std_logic;
+        enable : in std_logic;
+        -- data inputs from MEM  
+        ALU_result_mem_in  : in std_logic_vector(31 downto 0);  
+        dataOut_mem_in     : in std_logic_vector(31 downto 0);  
+        PC_mem_in          : in std_logic_vector(31 downto 0);  
+        PCOutPlus_mem_in   : in std_logic_vector(31 downto 0);  
+        multResult_mem_in  : in std_logic_vector(63 downto 0);  
+        inst_rd_mem_in     : in std_logic_vector(4 downto 0);  
+    
+        -- control inputs from MEM  
+        WriteReg_mem_in    : in std_logic;  
+        ToRegister_mem_in  : in std_logic_vector(2 downto 0);  
+    
+        -- data outputs to WB  
+        ALU_result_wb_out  : out std_logic_vector(31 downto 0);  
+        dataOut_wb_out     : out std_logic_vector(31 downto 0);  
+        PC_wb_out          : out std_logic_vector(31 downto 0);  
+        PCOutPlus_wb_out   : out std_logic_vector(31 downto 0);  
+        multResult_wb_out  : out std_logic_vector(63 downto 0);  
+        inst_rd_wb_out     : out std_logic_vector(4 downto 0);  
+    
+        -- control outputs to WB  
+        WriteReg_wb_out    : out std_logic;  
+        ToRegister_wb_out  : out std_logic_vector(2 downto 0)  
+    );  
+    end component;
 
     signal PCOut, PCOutPlus    : std_logic_vector(31 downto 0);    --data out from PC register
     signal instruction          : std_logic_vector(31 downto 0);    --instruction from ROM mem
@@ -266,10 +296,10 @@ architecture arch_DataPath of DataPath is
     signal multResult           : std_logic_vector(63 downto 0);
     
     --if_id signals
-    signal PC_id : std_logic_vector(31 downto 0);
-    signal instruction_id : std_logic_vector(31 downto 0);
-    signal if_id_enable : std_logic;
-    signal PCOutPlus_id : std_logic_vector(31 downto 0);
+    signal PC_id                : std_logic_vector(31 downto 0);
+    signal instruction_id       : std_logic_vector(31 downto 0);
+    signal if_id_enable         : std_logic;
+    signal PCOutPlus_id         : std_logic_vector(31 downto 0);
     
     --id_ex signals
     signal PC_ex, PCOutPlus_ex     : std_logic_vector(31 downto 0);
@@ -305,11 +335,23 @@ architecture arch_DataPath of DataPath is
     --signaal voor RAM 
     signal Memread : std_logic;
     
+    -- mem_wb signals
+    signal mem_wb_enable            : std_logic;
+    signal ALU_result_wb            : std_logic_vector(31 downto 0);
+    signal dataOut_wb               : std_logic_vector(31 downto 0);
+    signal PC_wb                    : std_logic_vector(31 downto 0);
+    signal PCOutPlus_wb             : std_logic_vector(31 downto 0);
+    signal multResult_wb            : std_logic_vector(63 downto 0);
+    signal inst_rd_wb               : std_logic_vector(4 downto 0);
+    signal WriteReg_wb              : std_logic;
+    signal ToRegister_wb            : std_logic_vector(2 downto 0);
+    
     
 begin
     if_id_enable <= '1'; --TIJDELIJK
     id_ex_enable <= '1'; --TIJDELIJK
     ex_mem_enable <= '1'; --TIJDELIJK
+    mem_wb_enable <= '1'; -- TIJDELIJK
     PCount: PC port map (clk => clk, rst => rst, PCIn => PCIn, PCOut => PCOut);
 
     ROM: Instruction_Mem port map (Address => PCOut(15 downto 0), instruction => instruction);
@@ -329,8 +371,8 @@ begin
             PCOutPlus_id_out => PCOutPlus_id
         );
     -- ID-stage gebruikt nu *_id signalen
-    RFILE : reg_file port map (clk => clk, writeReg => writeReg, sourceReg1 => instruction_id(19 downto 15),
-    sourceReg2 => instruction_id(24 downto 20), destinyReg => instruction_id(11 downto 7), data => dataForReg,
+    RFILE : reg_file port map (clk => clk, writeReg => writeReg_wb, sourceReg1 => instruction_id(19 downto 15),
+    sourceReg2 => instruction_id(24 downto 20), destinyReg => inst_rd_wb, data => dataForReg,
     readData1 => regData1, readData2 => regData2);
 
     Imm: Immediate_Generator port map (instruction => instruction_id, immediate => immediate);
@@ -404,8 +446,6 @@ begin
 
     BRControl: Branch_Control port map (branch => Branch_mem, signo => signo_mem, zero => zero_mem, PCSrc => PCSrc);
 
-    Mux3: Mux port map (muxIn0 => PCOutPlus, muxIn1 => newAddress_mem, selector => PCSrc, muxOut => PCIn);
-
     -- EX/MEM pipeline register
     EXMEM_reg: ex_mem
     port map (
@@ -453,7 +493,41 @@ begin
     -- MEM stage: now uses *_mem signals
     RAM: Data_Mem port map (clk => clk, writeEn => memWrite_mem, Address => ALU_result_mem(7 downto 0), dataIn => regData2_mem, dataOut => dataOut);
 
-    MuxReg: Mux_ToRegFile port map (muxIn0 => ALU_result_mem, muxIn1 => dataOut, muxIn2 => dataOut, muxIn3 => PC_mem,
-    muxIn4 => (others => '0'), muxIn5 => PCOutPlus_mem, muxIn6 => multResult_mem(31 downto 0), muxIn7 => multResult_mem(63 downto 32), selector => ToRegister_mem, muxOut => dataForReg);
+    Mux3: Mux port map (muxIn0 => PCOutPlus, muxIn1 => newAddress_mem, selector => PCSrc, muxOut => PCIn);
+
+    -- MEM/WB pipeline register
+    MEMWB_reg: mem_wb
+    port map (
+        clk => clk,
+        rst => rst,
+        enable => mem_wb_enable,
+        
+        -- Data inputs from MEM stage
+        ALU_result_mem_in => ALU_result_mem,  
+        dataOut_mem_in    => dataOut,  
+        PC_mem_in         => PC_mem,  
+        PCOutPlus_mem_in  => PCOutPlus_mem,  
+        multResult_mem_in => multResult_mem,  
+        inst_rd_mem_in    => inst_rd_mem,  
+        
+        -- Control inputs from MEM stage
+        WriteReg_mem_in   => WriteReg_mem,  
+        ToRegister_mem_in => ToRegister_mem,  
+        
+        -- Data outputs to MEM stage
+        ALU_result_wb_out => ALU_result_wb,  
+        dataOut_wb_out    => dataOut_wb,  
+        PC_wb_out         => PC_wb,  
+        PCOutPlus_wb_out  => PCOutPlus_wb,  
+        multResult_wb_out => multResult_wb,  
+        inst_rd_wb_out    => inst_rd_wb,  
+        
+        -- Control outputs to MEM stage
+        WriteReg_wb_out   => WriteReg_wb,  
+        ToRegister_wb_out => ToRegister_wb  
+        );
+
+    MuxReg: Mux_ToRegFile port map (muxIn0 => ALU_result_wb, muxIn1 => dataOut_wb, muxIn2 => dataOut_wb, muxIn3 => PC_wb,
+    muxIn4 => (others => '0'), muxIn5 => PCOutPlus_wb, muxIn6 => multResult_wb(31 downto 0), muxIn7 => multResult_wb(63 downto 32), selector => ToRegister_wb, muxOut => dataForReg);
 
 end architecture arch_DataPath;
