@@ -19,3 +19,10 @@
 *.xdbg
 *.ini
 *.vdb
+# Vivado generated directories
+*.cache/
+*.hw/
+*.sim/
+*.runs/
+*.ip_user_files/
+.xil/
