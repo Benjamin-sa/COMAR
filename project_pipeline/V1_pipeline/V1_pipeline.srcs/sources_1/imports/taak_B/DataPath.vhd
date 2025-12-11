@@ -187,6 +187,7 @@ architecture arch_DataPath of DataPath is
         PC_ex_out           : out std_logic_vector(31 downto 0);
         inst_rd_ex_out  : out std_logic_vector(4 downto 0);
         PCOutPlus_ex_out     : out  std_logic_vector(31 downto 0);
+        instruction_ex_out   : out  std_logic_vector(31 downto 0);
         
         regData1_ex_out           : out  std_logic_vector(31 downto 0);
         regData2_ex_out           : out  std_logic_vector(31 downto 0);
@@ -272,9 +273,23 @@ architecture arch_DataPath of DataPath is
         -- control outputs to WB  
         WriteReg_wb_out    : out std_logic;  
         ToRegister_wb_out  : out std_logic_vector(2 downto 0)  
-    );  
+        );  
+    end component;
+    
+    component Forwarding_Unit
+    port (
+        rs1_ex : in std_logic_vector(4 downto 0);
+        rs2_ex : in std_logic_vector(4 downto 0);
+        rd_mem : in std_logic_vector(4 downto 0);
+        rd_wb : in std_logic_vector(4 downto 0);
+        WriteReg_mem : in std_logic;
+        WriteReg_wb : in std_logic;
+        FW_A_sel : out std_logic_vector(1 downto 0);
+        FW_B_sel : out std_logic_vector(1 downto 0)
+        );
     end component;
 
+    -- SIGNALS
     signal PCOut, PCOutPlus    : std_logic_vector(31 downto 0);    --data out from PC register
     signal instruction          : std_logic_vector(31 downto 0);    --instruction from ROM mem
     signal PCIn                 : std_logic_vector(31 downto 0);    --PC updated
@@ -311,6 +326,7 @@ architecture arch_DataPath of DataPath is
     signal Branch_ex, ALUOp_ex     : std_logic_vector(2 downto 0);
     signal id_ex_enable            : std_logic;
     signal inst_rd_ex              : std_logic_vector(4 downto 0);
+    signal instruction_ex          : std_logic_vector(31 downto 0);
     signal WriteReg_ex             : std_logic;
     signal ToRegister_ex           : std_logic_vector(2 downto 0);
     signal mux1_out                : std_logic_vector(31 downto 0);
@@ -346,6 +362,14 @@ architecture arch_DataPath of DataPath is
     signal WriteReg_wb              : std_logic;
     signal ToRegister_wb            : std_logic_vector(2 downto 0);
     
+    -- FW signals
+    signal FW_A_sel : std_logic_vector(1 downto 0);
+    signal FW_B_sel : std_logic_vector(1 downto 0);
+    signal FW_A_out : std_logic_vector(31 downto 0);
+    signal FW_B_out : std_logic_vector(31 downto 0);
+    
+    signal rs1_ex : std_logic_vector(4 downto 0);
+    signal rs2_ex : std_logic_vector(4 downto 0);
     
 begin
     if_id_enable <= '1'; --TIJDELIJK
@@ -412,6 +436,7 @@ begin
         imm_ex_out  => imm_ex,
         PC_ex_out         => PC_ex,
         PCOutPlus_ex_out  => PCOutPlus_ex,
+        instruction_ex_out => instruction_ex,
         inst_rd_ex_out=> inst_rd_ex,
 
         -- control naar EX
@@ -425,15 +450,16 @@ begin
         ToRegister_ex_out => ToRegister_ex
     );
     
+    --EX stage
 
-    Mux0: Mux port map (muxIn0 => imm_ex, muxIn1 => regData2_ex, selector => ALUSrc_ex, muxOut => op2);
+    Mux0: Mux port map (muxIn0 => imm_ex, muxIn1 => FW_B_out, selector => ALUSrc_ex, muxOut => op2);
     
-    ALU: ALU_RV32 port map (operator1 => regData1_ex, operator2 => op2, ALUOp => ALUOp_ex, 
+    ALU: ALU_RV32 port map (operator1 => FW_A_out, operator2 => op2, ALUOp => ALUOp_ex, 
     result => result, zero => zero, carryOut => carry, signo => signo);
     
     ALU_result <= result;
 
-    Mult: multiplier port map (operator1 => regData1_ex, operator2 => regData2_ex, product => multResult);
+    Mult: multiplier port map (operator1 => FW_A_out, operator2 => FW_B_out, product => multResult);
 
     regData2Anded <= regData2_ex and X"000000FF";
 
@@ -444,7 +470,37 @@ begin
     shifted <= offset(30 downto 0) & '0';
     newAddress <= PC_ex + shifted;
 
-    BRControl: Branch_Control port map (branch => Branch_mem, signo => signo_mem, zero => zero_mem, PCSrc => PCSrc);
+    FW_Unit: Forwarding_Unit
+    port map (
+        rs1_ex => instruction_ex(19 downto 15),
+        rs2_ex => instruction_ex(24 downto 20),
+        rd_mem => inst_rd_mem,
+        rd_wb => inst_rd_wb,
+        WriteReg_mem => WriteReg_mem,
+        WriteReg_wb => WriteReg_wb,
+        FW_A_sel => FW_A_sel,
+        FW_B_sel => FW_B_sel
+    );
+    
+    FW_A_mux: process(FW_A_sel, regData1_ex, ALU_result_mem, dataForReg)
+        begin
+            case FW_A_sel is
+            when "00" => FW_A_out <= regData1_ex; -- geen forwarding
+            when "01" => FW_A_out <= ALU_result_mem; -- van EX/MEM
+            when "10" => FW_A_out <= dataForReg; -- van WB
+            when others => FW_A_out <= regData1_ex;
+            end case;
+        end process;
+        
+    FW_B_mux: process(FW_B_sel, regData2_ex, ALU_result_mem, dataForReg)
+        begin
+            case FW_B_sel is
+            when "00" => FW_B_out <= regData2_ex;
+            when "01" => FW_B_out <= ALU_result_mem;
+            when "10" => FW_B_out <= dataForReg;
+            when others => FW_B_out <= regData2_ex;
+            end case;
+        end process;
 
     -- EX/MEM pipeline register
     EXMEM_reg: ex_mem
@@ -491,6 +547,9 @@ begin
     );
 
     -- MEM stage: now uses *_mem signals
+
+    BRControl: Branch_Control port map (branch => Branch_mem, signo => signo_mem, zero => zero_mem, PCSrc => PCSrc);
+
     RAM: Data_Mem port map (clk => clk, writeEn => memWrite_mem, Address => ALU_result_mem(7 downto 0), dataIn => regData2_mem, dataOut => dataOut);
 
     Mux3: Mux port map (muxIn0 => PCOutPlus, muxIn1 => newAddress_mem, selector => PCSrc, muxOut => PCIn);

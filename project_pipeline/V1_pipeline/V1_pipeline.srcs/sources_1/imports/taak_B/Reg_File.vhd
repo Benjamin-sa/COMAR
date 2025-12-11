@@ -23,7 +23,7 @@ architecture arch_Reg_File of Reg_File is
 begin
     process( clk, writeReg, sourceReg1, sourceReg2, destinyReg, data, registers )
     begin
-        if rising_edge(clk) then               
+        if falling_edge(clk) then               
             if writeReg = '1' and destinyReg /= "00000" then         --check for write register and destiny diff from address zero
                 registers(conv_integer(destinyReg)) <= data;       --write data to destiny register
             end if;

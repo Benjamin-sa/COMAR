@@ -16,8 +16,8 @@ entity id_ex is
         instruction_id_in   : in std_logic_vector(31 downto 0);
         
         
-        regData1_id_in           : in  std_logic_vector(31 downto 0);
-        regData2_id_in           : in  std_logic_vector(31 downto 0);
+        regData1_id_in      : in  std_logic_vector(31 downto 0);
+        regData2_id_in      : in  std_logic_vector(31 downto 0);
         imm_id_in           : in  std_logic_vector(31 downto 0);
         
         -- control
@@ -34,6 +34,7 @@ entity id_ex is
         PC_ex_out           : out std_logic_vector(31 downto 0);
         inst_rd_ex_out  : out std_logic_vector(31 downto 0);
         PCOutPlus_ex_out     : out  std_logic_vector(31 downto 0);
+        instruction_ex_out   : out  std_logic_vector(31 downto 0);
         regData1_ex_out      : out  std_logic_vector(31 downto 0);
         regData2_ex_out      : out  std_logic_vector(31 downto 0);
         imm_ex_out           : out  std_logic_vector(31 downto 0);
