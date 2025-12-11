@@ -29,6 +29,7 @@ entity id_ex is
         ALUOp_id_in      : in  std_logic_vector(2 downto 0);
         WriteReg_id_in   : in  std_logic;
         ToRegister_id_in : in  std_logic_vector(2 downto 0);
+        MemRead_id_in   : in  std_logic;
         
         -- outputs to EX stage
         PC_ex_out           : out std_logic_vector(31 downto 0);
@@ -47,7 +48,8 @@ entity id_ex is
         Branch_ex_out    : out std_logic_vector(2 downto 0);
         ALUOp_ex_out     : out std_logic_vector(2 downto 0);
         WriteReg_ex_out   : out std_logic;
-        ToRegister_ex_out : out std_logic_vector(2 downto 0)
+        ToRegister_ex_out : out std_logic_vector(2 downto 0);
+        MemRead_ex_out   : out  std_logic
     );
 end entity id_ex;
 
@@ -72,10 +74,12 @@ begin
                 ALUOp_ex_out     <= (others => '0');
                 WriteReg_ex_out   <= '0';
                 ToRegister_ex_out <= (others => '0');
+                MemRead_ex_out <= '0';
+                instruction_ex_out <= (others => '0');
     
             elsif enable = '1' then
                 PC_ex_out    <= PC_id_in;
-                inst_rd_ex_out <= instruction_id_in;
+                inst_rd_ex_out <= inst_rd_id_in;
                 PCOutPlus_ex_out <= PCOutPlus_id_in;
                 regData1_ex_out <=  regData1_id_in;
                 regData2_ex_out <=  regData2_id_in;
@@ -89,6 +93,8 @@ begin
                 ALUOp_ex_out     <= ALUOp_id_in;
                 WriteReg_ex_out   <= WriteReg_id_in;
                 ToRegister_ex_out <= ToRegister_id_in;
+                MemRead_ex_out <= MemRead_id_in;
+                instruction_ex_out <= instruction_id_in;
             end if;
         end if;
     end process;

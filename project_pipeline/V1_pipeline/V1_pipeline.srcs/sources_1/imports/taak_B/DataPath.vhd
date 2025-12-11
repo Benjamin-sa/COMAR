@@ -182,10 +182,11 @@ architecture arch_DataPath of DataPath is
         ALUOp_id_in      : in  std_logic_vector(2 downto 0);
         WriteReg_id_in   : in  std_logic;
         ToRegister_id_in : in  std_logic_vector(2 downto 0);
+        MemRead_id_in   : in  std_logic;
         
          -- outputs to EX stage
-        PC_ex_out           : out std_logic_vector(31 downto 0);
-        inst_rd_ex_out  : out std_logic_vector(4 downto 0);
+        PC_ex_out            : out std_logic_vector(31 downto 0);
+        inst_rd_ex_out       : out std_logic_vector(4 downto 0);
         PCOutPlus_ex_out     : out  std_logic_vector(31 downto 0);
         instruction_ex_out   : out  std_logic_vector(31 downto 0);
         
@@ -201,7 +202,8 @@ architecture arch_DataPath of DataPath is
         Branch_ex_out    : out std_logic_vector(2 downto 0);
         ALUOp_ex_out     : out std_logic_vector(2 downto 0);
         WriteReg_ex_out   : out std_logic;
-        ToRegister_ex_out : out std_logic_vector(2 downto 0)
+        ToRegister_ex_out : out std_logic_vector(2 downto 0);
+        MemRead_ex_out   : out  std_logic  
     );
     end component;
     
@@ -288,6 +290,18 @@ architecture arch_DataPath of DataPath is
         FW_B_sel : out std_logic_vector(1 downto 0)
         );
     end component;
+    
+    component Hazard_Unit is
+    port (
+        ID_EX_MemRead : in  std_logic;
+        ID_EX_Rd      : in  std_logic_vector(4 downto 0);
+        IF_ID_Rs1     : in  std_logic_vector(4 downto 0);
+        IF_ID_Rs2     : in  std_logic_vector(4 downto 0);
+        PCWrite       : out std_logic;
+        IFIDWrite     : out std_logic;
+        stall         : out std_logic
+    );
+    end component;
 
     -- SIGNALS
     signal PCOut, PCOutPlus    : std_logic_vector(31 downto 0);    --data out from PC register
@@ -350,6 +364,8 @@ architecture arch_DataPath of DataPath is
     
     --signaal voor RAM 
     signal Memread : std_logic;
+    -- signaal voor hazard unit
+    signal MemRead_ex : std_logic;
     
     -- mem_wb signals
     signal mem_wb_enable            : std_logic;
@@ -371,8 +387,24 @@ architecture arch_DataPath of DataPath is
     signal rs1_ex : std_logic_vector(4 downto 0);
     signal rs2_ex : std_logic_vector(4 downto 0);
     
+    --HZ Detection signals
+    signal stall : std_logic;
+    signal IFIDWrite : std_logic;
+    signal PCWrite : std_logic;
+    signal PCNext : std_logic_vector(31 downto 0);
+    
+    signal jump_ctrl        : std_logic;
+    signal MemWrite_ctrl    : std_logic;
+    signal StoreSel_ctrl    : std_logic;
+    signal ALUSrc_ctrl      : std_logic;
+    signal Branch_ctrl      : std_logic_vector(2 downto 0);
+    signal ALUOp_ctrl       : std_logic_vector(2 downto 0);
+    signal WriteReg_ctrl    : std_logic;
+    signal ToRegister_ctrl  : std_logic_vector(2 downto 0);
+    signal MemRead_ctrl     : std_logic;
+    
 begin
-    if_id_enable <= '1'; --TIJDELIJK
+    if_id_enable <= IFIDWrite;  --IF_ID register bevriezen voor hazard detection
     id_ex_enable <= '1'; --TIJDELIJK
     ex_mem_enable <= '1'; --TIJDELIJK
     mem_wb_enable <= '1'; -- TIJDELIJK
@@ -402,9 +434,31 @@ begin
     Imm: Immediate_Generator port map (instruction => instruction_id, immediate => immediate);
 
     Ctrl: Control port map (opcode => instruction_id(6 downto 0), funct3 => instruction_id(14 downto 12), funct7 => instruction_id(31 downto 25),
-    jump => jump, MemWrite => memWrite, Branch => Branch, ALUOp => ALUOp, StoreSel => StoreSel, ALUSrc => ALUSrc, 
-    WriteReg => WriteReg, ToRegister => toRegister, Memread => Memread);
+    jump => jump_ctrl, MemWrite => memWrite_ctrl, Branch => Branch_ctrl, ALUOp => ALUOp_ctrl, StoreSel => StoreSel_ctrl, ALUSrc => ALUSrc_ctrl, 
+    WriteReg => WriteReg_ctrl, ToRegister => toRegister_ctrl, Memread => Memread_ctrl);
     
+    Hazard: Hazard_Unit
+    port map (
+        ID_EX_MemRead => MemRead_ex,
+        ID_EX_Rd      => inst_rd_ex,
+        IF_ID_Rs1     => instruction_id(19 downto 15),
+        IF_ID_Rs2     => instruction_id(24 downto 20),
+        PCWrite       => PCWrite,
+        IFIDWrite     => IFIDWrite,
+        stall         => stall
+    );
+    
+    -- mux_ctrl    
+    jump      <= '0'                 when stall = '1' else jump_ctrl;
+    MemWrite  <= '0'                 when stall = '1' else MemWrite_ctrl;
+    StoreSel  <= '0'                 when stall = '1' else StoreSel_ctrl;
+    ALUSrc    <= '0'                 when stall = '1' else ALUSrc_ctrl;
+    Branch    <= (others => '0')     when stall = '1' else Branch_ctrl;
+    ALUOp     <= (others => '0')     when stall = '1' else ALUOp_ctrl;
+    WriteReg  <= '0'                 when stall = '1' else WriteReg_ctrl;
+    ToRegister<= (others => '0')     when stall = '1' else ToRegister_ctrl;
+    MemRead   <= '0'                 when stall = '1' else MemRead_ctrl;    
+        
     IDEX_reg: id_ex
     port map (
         clk              => clk,
@@ -429,6 +483,7 @@ begin
         StoreSel_id_in    => StoreSel,
         WriteReg_id_in    => WriteReg,
         ToRegister_id_in  => toRegister,
+        MemRead_id_in     => Memread,
 
         -- data naar EX
         regData1_ex_out   => regData1_ex,
@@ -447,7 +502,8 @@ begin
         MemWrite_ex_out   => MemWrite_ex,
         StoreSel_ex_out   => StoreSel_ex,
         WriteReg_ex_out   => WriteReg_ex,
-        ToRegister_ex_out => ToRegister_ex
+        ToRegister_ex_out => ToRegister_ex,
+        MemRead_ex_out    => MemRead_ex
     );
     
     --EX stage
@@ -461,9 +517,9 @@ begin
 
     Mult: multiplier port map (operator1 => FW_A_out, operator2 => FW_B_out, product => multResult);
 
-    regData2Anded <= regData2_ex and X"000000FF";
+    regData2Anded <= FW_B_out and X"000000FF";
 
-    Mux1: Mux port map (muxIn0 => regData2_ex, muxIn1 => regData2Anded, selector => StoreSel_ex, muxOut => mux1_out);
+    Mux1: Mux port map (muxIn0 => FW_B_out, muxIn1 => regData2Anded, selector => StoreSel_ex, muxOut => mux1_out);
 
     Mux2: Mux port map (muxIn0 => imm_ex, muxIn1 => result, selector => jump_ex, muxOut => offset);
 
@@ -552,7 +608,10 @@ begin
 
     RAM: Data_Mem port map (clk => clk, writeEn => memWrite_mem, Address => ALU_result_mem(7 downto 0), dataIn => regData2_mem, dataOut => dataOut);
 
-    Mux3: Mux port map (muxIn0 => PCOutPlus, muxIn1 => newAddress_mem, selector => PCSrc, muxOut => PCIn);
+    Mux3: Mux port map (muxIn0 => PCOutPlus, muxIn1 => newAddress_mem, selector => PCSrc, muxOut => PCNext);
+    
+    -- Mux_PC_stall
+    PCIn <= PCNext when PCWrite = '1' else PCOut;
 
     -- MEM/WB pipeline register
     MEMWB_reg: mem_wb
