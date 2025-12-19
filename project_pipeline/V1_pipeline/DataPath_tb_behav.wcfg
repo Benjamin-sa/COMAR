@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="DataPath_tb_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="DataPath_tb" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="13,919.999 ns"></ZoomStartTime>
+      <ZoomEndTime time="14,846.208 ns"></ZoomEndTime>
+      <Cursor1Time time="14,158.900 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="233"></NameColumnWidth>
+      <ValueColumnWidth column_width="101"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="33" />
+   <wvobject fp_name="/DataPath_tb/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/rst" type="logic">
+      <obj_property name="ElementShortName">rst</obj_property>
+      <obj_property name="ObjectShortName">rst</obj_property>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/clk_period" type="other">
+      <obj_property name="ElementShortName">clk_period</obj_property>
+      <obj_property name="ObjectShortName">clk_period</obj_property>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/DUT/PCount/PCOut" type="array">
+      <obj_property name="ElementShortName">PCOut[31:0]</obj_property>
+      <obj_property name="ObjectShortName">PCOut[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers" type="array">
+      <obj_property name="ElementShortName">registers[0:31][31:0]</obj_property>
+      <obj_property name="ObjectShortName">registers[0:31][31:0]</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[0]" type="array">
+         <obj_property name="ElementShortName">[0][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[0][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[1]" type="array">
+         <obj_property name="ElementShortName">[1][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[1][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[2]" type="array">
+         <obj_property name="ElementShortName">[2][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[2][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[3]" type="array">
+         <obj_property name="ElementShortName">[3][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[3][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[4]" type="array">
+         <obj_property name="ElementShortName">[4][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[4][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[5]" type="array">
+         <obj_property name="ElementShortName">[5][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[5][31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[6]" type="array">
+         <obj_property name="ElementShortName">[6][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[6][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[7]" type="array">
+         <obj_property name="ElementShortName">[7][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[7][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[8]" type="array">
+         <obj_property name="ElementShortName">[8][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[8][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[9]" type="array">
+         <obj_property name="ElementShortName">[9][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[9][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[10]" type="array">
+         <obj_property name="ElementShortName">[10][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[10][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[11]" type="array">
+         <obj_property name="ElementShortName">[11][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[11][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[12]" type="array">
+         <obj_property name="ElementShortName">[12][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[12][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[13]" type="array">
+         <obj_property name="ElementShortName">[13][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[13][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[14]" type="array">
+         <obj_property name="ElementShortName">[14][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[14][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[15]" type="array">
+         <obj_property name="ElementShortName">[15][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[15][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[16]" type="array">
+         <obj_property name="ElementShortName">[16][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[16][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[17]" type="array">
+         <obj_property name="ElementShortName">[17][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[17][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[18]" type="array">
+         <obj_property name="ElementShortName">[18][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[18][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[19]" type="array">
+         <obj_property name="ElementShortName">[19][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[19][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[20]" type="array">
+         <obj_property name="ElementShortName">[20][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[20][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[21]" type="array">
+         <obj_property name="ElementShortName">[21][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[21][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[22]" type="array">
+         <obj_property name="ElementShortName">[22][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[22][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[23]" type="array">
+         <obj_property name="ElementShortName">[23][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[23][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[24]" type="array">
+         <obj_property name="ElementShortName">[24][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[24][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[25]" type="array">
+         <obj_property name="ElementShortName">[25][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[25][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[26]" type="array">
+         <obj_property name="ElementShortName">[26][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[26][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[27]" type="array">
+         <obj_property name="ElementShortName">[27][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[27][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[28]" type="array">
+         <obj_property name="ElementShortName">[28][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[28][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[29]" type="array">
+         <obj_property name="ElementShortName">[29][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[29][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[30]" type="array">
+         <obj_property name="ElementShortName">[30][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[30][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[31]" type="array">
+         <obj_property name="ElementShortName">[31][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[31][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[0]" type="array">
+         <obj_property name="ElementShortName">[0][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[0][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[1]" type="array">
+         <obj_property name="ElementShortName">[1][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[1][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[2]" type="array">
+         <obj_property name="ElementShortName">[2][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[2][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[3]" type="array">
+         <obj_property name="ElementShortName">[3][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[3][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[4]" type="array">
+         <obj_property name="ElementShortName">[4][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[4][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[5]" type="array">
+         <obj_property name="ElementShortName">[5][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[5][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[6]" type="array">
+         <obj_property name="ElementShortName">[6][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[6][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[7]" type="array">
+         <obj_property name="ElementShortName">[7][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[7][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[8]" type="array">
+         <obj_property name="ElementShortName">[8][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[8][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[9]" type="array">
+         <obj_property name="ElementShortName">[9][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[9][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[10]" type="array">
+         <obj_property name="ElementShortName">[10][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[10][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[11]" type="array">
+         <obj_property name="ElementShortName">[11][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[11][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[12]" type="array">
+         <obj_property name="ElementShortName">[12][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[12][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[13]" type="array">
+         <obj_property name="ElementShortName">[13][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[13][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[14]" type="array">
+         <obj_property name="ElementShortName">[14][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[14][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[15]" type="array">
+         <obj_property name="ElementShortName">[15][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[15][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[16]" type="array">
+         <obj_property name="ElementShortName">[16][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[16][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[17]" type="array">
+         <obj_property name="ElementShortName">[17][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[17][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[18]" type="array">
+         <obj_property name="ElementShortName">[18][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[18][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[19]" type="array">
+         <obj_property name="ElementShortName">[19][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[19][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[20]" type="array">
+         <obj_property name="ElementShortName">[20][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[20][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[21]" type="array">
+         <obj_property name="ElementShortName">[21][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[21][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[22]" type="array">
+         <obj_property name="ElementShortName">[22][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[22][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[23]" type="array">
+         <obj_property name="ElementShortName">[23][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[23][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[24]" type="array">
+         <obj_property name="ElementShortName">[24][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[24][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[25]" type="array">
+         <obj_property name="ElementShortName">[25][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[25][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[26]" type="array">
+         <obj_property name="ElementShortName">[26][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[26][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[27]" type="array">
+         <obj_property name="ElementShortName">[27][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[27][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[28]" type="array">
+         <obj_property name="ElementShortName">[28][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[28][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[29]" type="array">
+         <obj_property name="ElementShortName">[29][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[29][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[30]" type="array">
+         <obj_property name="ElementShortName">[30][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[30][31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/DataPath_tb/DUT/RFILE/registers[31]" type="array">
+         <obj_property name="ElementShortName">[31][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[31][31:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/DUT/RAM/MEM" type="array">
+      <obj_property name="ElementShortName">MEM[255:0][7:0]</obj_property>
+      <obj_property name="ObjectShortName">MEM[255:0][7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/DUT/PCount/PCIn" type="array">
+      <obj_property name="ElementShortName">PCIn[31:0]</obj_property>
+      <obj_property name="ObjectShortName">PCIn[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/DUT/Mux3/muxIn0" type="array">
+      <obj_property name="ElementShortName">muxIn0[31:0]</obj_property>
+      <obj_property name="ObjectShortName">muxIn0[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/DUT/Mux3/muxIn1" type="array">
+      <obj_property name="ElementShortName">muxIn1[31:0]</obj_property>
+      <obj_property name="ObjectShortName">muxIn1[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/DUT/Mux3/selector" type="logic">
+      <obj_property name="ElementShortName">selector</obj_property>
+      <obj_property name="ObjectShortName">selector</obj_property>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/DUT/Mux3/muxOut" type="array">
+      <obj_property name="ElementShortName">muxOut[31:0]</obj_property>
+      <obj_property name="ObjectShortName">muxOut[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/DUT/BRControl/branch" type="array">
+      <obj_property name="ElementShortName">branch[2:0]</obj_property>
+      <obj_property name="ObjectShortName">branch[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/DUT/BRControl/PCSrc" type="logic">
+      <obj_property name="ElementShortName">PCSrc</obj_property>
+      <obj_property name="ObjectShortName">PCSrc</obj_property>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/DUT/BRControl/signo" type="logic">
+      <obj_property name="ElementShortName">signo</obj_property>
+      <obj_property name="ObjectShortName">signo</obj_property>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/DUT/BRControl/zero" type="logic">
+      <obj_property name="ElementShortName">zero</obj_property>
+      <obj_property name="ObjectShortName">zero</obj_property>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/DUT/ALU/signo" type="logic">
+      <obj_property name="ElementShortName">signo</obj_property>
+      <obj_property name="ObjectShortName">signo</obj_property>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/DUT/RFILE/sourceReg1" type="array">
+      <obj_property name="ElementShortName">sourceReg1[4:0]</obj_property>
+      <obj_property name="ObjectShortName">sourceReg1[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/DUT/RFILE/sourceReg2" type="array">
+      <obj_property name="ElementShortName">sourceReg2[4:0]</obj_property>
+      <obj_property name="ObjectShortName">sourceReg2[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/DUT/RFILE/readData1" type="array">
+      <obj_property name="ElementShortName">readData1[31:0]</obj_property>
+      <obj_property name="ObjectShortName">readData1[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/DUT/RFILE/readData2" type="array">
+      <obj_property name="ElementShortName">readData2[31:0]</obj_property>
+      <obj_property name="ObjectShortName">readData2[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/DUT/IDEX_reg/regData1_ex_out" type="array">
+      <obj_property name="ElementShortName">regData1_ex_out[31:0]</obj_property>
+      <obj_property name="ObjectShortName">regData1_ex_out[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/DUT/IDEX_reg/regData2_ex_out" type="array">
+      <obj_property name="ElementShortName">regData2_ex_out[31:0]</obj_property>
+      <obj_property name="ObjectShortName">regData2_ex_out[31:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/DUT/ALU/operator1" type="array">
+      <obj_property name="ElementShortName">operator1[31:0]</obj_property>
+      <obj_property name="ObjectShortName">operator1[31:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/DUT/ALU/operator2" type="array">
+      <obj_property name="ElementShortName">operator2[31:0]</obj_property>
+      <obj_property name="ObjectShortName">operator2[31:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/DUT/ALU/ALUOp" type="array">
+      <obj_property name="ElementShortName">ALUOp[2:0]</obj_property>
+      <obj_property name="ObjectShortName">ALUOp[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/DUT/ALU/result" type="array">
+      <obj_property name="ElementShortName">result[31:0]</obj_property>
+      <obj_property name="ObjectShortName">result[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/DUT/Mult/operator1" type="array">
+      <obj_property name="ElementShortName">operator1[31:0]</obj_property>
+      <obj_property name="ObjectShortName">operator1[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/DUT/Mult/operator2" type="array">
+      <obj_property name="ElementShortName">operator2[31:0]</obj_property>
+      <obj_property name="ObjectShortName">operator2[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/DUT/Mult/product" type="array">
+      <obj_property name="ElementShortName">product[63:0]</obj_property>
+      <obj_property name="ObjectShortName">product[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/DUT/Ctrl/funct3" type="array">
+      <obj_property name="ElementShortName">funct3[2:0]</obj_property>
+      <obj_property name="ObjectShortName">funct3[2:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/DUT/Ctrl/funct7" type="array">
+      <obj_property name="ElementShortName">funct7[6:0]</obj_property>
+      <obj_property name="ObjectShortName">funct7[6:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/DUT/ROM/Address" type="array">
+      <obj_property name="ElementShortName">Address[15:0]</obj_property>
+      <obj_property name="ObjectShortName">Address[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/DataPath_tb/DUT/ROM/instruction" type="array">
+      <obj_property name="ElementShortName">instruction[31:0]</obj_property>
+      <obj_property name="ObjectShortName">instruction[31:0]</obj_property>
+   </wvobject>
+</wave_config>

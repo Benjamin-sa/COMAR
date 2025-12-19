@@ -155,7 +155,10 @@ architecture arch_DataPath of DataPath is
             enable : in std_logic;
             instruction_id_out : out std_logic_vector(31 downto 0);
             PC_id_out : out std_logic_vector(31 downto 0);
-            PCOutPlus_id_out : out std_logic_vector(31 downto 0)
+            writeReg_if_in : in std_logic;
+            PCOutPlus_id_out : out std_logic_vector(31 downto 0);
+            WriteReg_id_out   : out  std_logic;
+            pipeline_flush      : in std_logic
         );
     end component;
     
@@ -203,7 +206,8 @@ architecture arch_DataPath of DataPath is
         ALUOp_ex_out     : out std_logic_vector(2 downto 0);
         WriteReg_ex_out   : out std_logic;
         ToRegister_ex_out : out std_logic_vector(2 downto 0);
-        MemRead_ex_out   : out  std_logic  
+        MemRead_ex_out   : out  std_logic; 
+        pipeline_flush      : in std_logic
     );
     end component;
     
@@ -228,6 +232,7 @@ architecture arch_DataPath of DataPath is
         WriteReg_ex_in      : in  std_logic;
         ToRegister_ex_in    : in  std_logic_vector(2 downto 0);
         jump_ex_in          : in  std_logic;
+        MemRead_ex_in       : in  std_logic;
         -- Data outputs to MEM stage
         ALU_result_mem_out  : out std_logic_vector(31 downto 0);
         regData2_mem_out    : out std_logic_vector(31 downto 0);
@@ -238,6 +243,7 @@ architecture arch_DataPath of DataPath is
         newAddress_mem_out  : out std_logic_vector(31 downto 0);
         zero_mem_out        : out std_logic;
         signo_mem_out       : out std_logic;
+        memread_mem_out     : out std_logic;
         -- Control outputs to MEM stage
         memWrite_mem_out    : out std_logic;
         Branch_mem_out      : out std_logic_vector(2 downto 0);
@@ -287,21 +293,39 @@ architecture arch_DataPath of DataPath is
         WriteReg_mem : in std_logic;
         WriteReg_wb : in std_logic;
         FW_A_sel : out std_logic_vector(1 downto 0);
-        FW_B_sel : out std_logic_vector(1 downto 0)
+        FW_B_sel : out std_logic_vector(1 downto 0);
+        MemRead_mem  : in std_logic
         );
     end component;
     
-    component Hazard_Unit is
+component Hazard_Unit is
     port (
-        ID_EX_MemRead : in  std_logic;
-        ID_EX_Rd      : in  std_logic_vector(4 downto 0);
-        IF_ID_Rs1     : in  std_logic_vector(4 downto 0);
-        IF_ID_Rs2     : in  std_logic_vector(4 downto 0);
-        PCWrite       : out std_logic;
-        IFIDWrite     : out std_logic;
-        stall         : out std_logic
+        -- Inputs Load-Use Hazard Detectie
+        ID_EX_MemRead : in std_logic;            
+        ID_EX_Rd      : in std_logic_vector(4 downto 0); 
+        IF_ID_Rs1     : in std_logic_vector(4 downto 0); 
+        IF_ID_Rs2     : in std_logic_vector(4 downto 0); 
+        
+        -- Inputs Control Hazard Detectie (van de MEM-fase)
+        PCSrc_mem     : in std_logic;            -- Resultaat van Branch Control (is de branch genomen?)
+        jump_mem      : in std_logic;            -- Was de instructie in MEM een J-type instructie?
+        
+        -- Inputs van de originele (onnodige) hazard checks
+        rd_mem : in std_logic_vector(4 downto 0);
+        rs1_ex : in std_logic_vector(4 downto 0);
+        EX_MEM_selector : in std_logic_vector(2 downto 0);
+        EX_MEM_regwrite : in std_logic;
+        
+        -- Outputs voor Stall / Flush Controle
+        PCWrite    : out std_logic;
+        IFIDWrite  : out std_logic;
+        IDEXWrite  : out std_logic;  -- Wordt gebruikt voor Flush
+        EXMEMWrite : out std_logic;
+        stall      : out std_logic;   -- Wordt gebruikt voor Stall/NOP-injectie
+        FlushIDEX      : out std_logic;
+        FlushIFID     : out std_logic
     );
-    end component;
+end component;
 
     -- SIGNALS
     signal PCOut, PCOutPlus    : std_logic_vector(31 downto 0);    --data out from PC register
@@ -329,6 +353,9 @@ architecture arch_DataPath of DataPath is
     signal instruction_id       : std_logic_vector(31 downto 0);
     signal if_id_enable         : std_logic;
     signal PCOutPlus_id         : std_logic_vector(31 downto 0);
+    signal WriteReg_id_out      : std_logic;
+    signal FlushIDEX            : std_logic;
+    signal FlushIFID            : std_logic;
     
     --id_ex signals
     signal PC_ex, PCOutPlus_ex     : std_logic_vector(31 downto 0);
@@ -344,6 +371,7 @@ architecture arch_DataPath of DataPath is
     signal WriteReg_ex             : std_logic;
     signal ToRegister_ex           : std_logic_vector(2 downto 0);
     signal mux1_out                : std_logic_vector(31 downto 0);
+    signal Flush_ex                : std_logic;
     
     --ex_mem signals
     signal ex_mem_enable           : std_logic;
@@ -390,6 +418,8 @@ architecture arch_DataPath of DataPath is
     --HZ Detection signals
     signal stall : std_logic;
     signal IFIDWrite : std_logic;
+    signal EXMEMWrite : std_logic;
+    signal IDEXWrite : std_logic; 
     signal PCWrite : std_logic;
     signal PCNext : std_logic_vector(31 downto 0);
     
@@ -403,10 +433,14 @@ architecture arch_DataPath of DataPath is
     signal ToRegister_ctrl  : std_logic_vector(2 downto 0);
     signal MemRead_ctrl     : std_logic;
     
+    -- NIEUWE SIGNALEN VOOR CONTROL HAZARD (tussen MEM en Hazard Unit)
+    signal PCSrc_mem : std_logic;
+    signal MemRead_mem : std_logic; -- Cruciaal voor forwarding
+    
 begin
     if_id_enable <= IFIDWrite;  --IF_ID register bevriezen voor hazard detection
-    id_ex_enable <= '1'; --TIJDELIJK
-    ex_mem_enable <= '1'; --TIJDELIJK
+    id_ex_enable <= IDEXWrite; --TIJDELIJK
+    ex_mem_enable <= EXMEMWrite; --TIJDELIJK
     mem_wb_enable <= '1'; -- TIJDELIJK
     PCount: PC port map (clk => clk, rst => rst, PCIn => PCIn, PCOut => PCOut);
 
@@ -424,7 +458,10 @@ begin
             enable => if_id_enable,
             instruction_id_out => instruction_id,
             PC_id_out => PC_id,
-            PCOutPlus_id_out => PCOutPlus_id
+            PCOutPlus_id_out => PCOutPlus_id,
+            writeReg_if_in => Writereg_ctrl,
+            writeReg_id_out => writereg_id_out,
+            pipeline_flush => FlushIFID
         );
     -- ID-stage gebruikt nu *_id signalen
     RFILE : reg_file port map (clk => clk, writeReg => writeReg_wb, sourceReg1 => instruction_id(19 downto 15),
@@ -438,19 +475,34 @@ begin
     WriteReg => WriteReg_ctrl, ToRegister => toRegister_ctrl, Memread => Memread_ctrl);
     
     Hazard: Hazard_Unit
-    port map (
-        ID_EX_MemRead => MemRead_ex,
-        ID_EX_Rd      => inst_rd_ex,
-        IF_ID_Rs1     => instruction_id(19 downto 15),
-        IF_ID_Rs2     => instruction_id(24 downto 20),
-        PCWrite       => PCWrite,
-        IFIDWrite     => IFIDWrite,
-        stall         => stall
+     port map (
+        ID_EX_MemRead   => MemRead_ex,
+        ID_EX_Rd        => inst_rd_ex,
+        IF_ID_Rs1       => instruction_id(19 downto 15),
+        IF_ID_Rs2       => instruction_id(24 downto 20),
+        
+        -- Nieuwe signalen aansluiten:
+        PCSrc_mem       => PCSrc_mem, --?
+        jump_mem        => jump_mem,  -- moet dit met of zonder _mem
+        
+        -- De rest blijft hetzelfde...
+        rd_mem          => inst_rd_mem,
+        rs1_ex          => instruction_ex(19 downto 15),
+        EXMEMWrite      => EXMEMWrite,
+        EX_MEM_selector => ToRegister_mem,
+        EX_MEM_regwrite => WriteReg_mem,
+        PCWrite         => PCWrite,
+        IFIDWrite       => IFIDWrite,
+        IDEXWrite       => IDEXWrite,
+        stall           => stall,
+        FlushIFID          => flushIFID,
+        FlushIDEX          => flushIDEX
+        
     );
     
     -- mux_ctrl    
     jump      <= '0'                 when stall = '1' else jump_ctrl;
-    MemWrite  <= '0'                 when stall = '1' else MemWrite_ctrl;
+    MemWrite  <= '0'                 when stall = '1' else memwrite_ctrl;
     StoreSel  <= '0'                 when stall = '1' else StoreSel_ctrl;
     ALUSrc    <= '0'                 when stall = '1' else ALUSrc_ctrl;
     Branch    <= (others => '0')     when stall = '1' else Branch_ctrl;
@@ -473,6 +525,7 @@ begin
         PCOutPlus_id_in  => PCOutPlus_id, 
         inst_rd_id_in => instruction_id(11 downto 7),
         instruction_id_in => instruction_id,
+        WriteReg_id_in    => WriteReg_ctrl,
 
         -- control uit ID (rechtstreeks uit control)
         ALUOp_id_in       => ALUOp,
@@ -481,7 +534,6 @@ begin
         jump_id_in        => jump,
         memWrite_id_in    => MemWrite,
         StoreSel_id_in    => StoreSel,
-        WriteReg_id_in    => WriteReg,
         ToRegister_id_in  => toRegister,
         MemRead_id_in     => Memread,
 
@@ -503,7 +555,8 @@ begin
         StoreSel_ex_out   => StoreSel_ex,
         WriteReg_ex_out   => WriteReg_ex,
         ToRegister_ex_out => ToRegister_ex,
-        MemRead_ex_out    => MemRead_ex
+        MemRead_ex_out    => MemRead_ex,
+        pipeline_flush => FlushIDEX
     );
     
     --EX stage
@@ -531,32 +584,67 @@ begin
         rs1_ex => instruction_ex(19 downto 15),
         rs2_ex => instruction_ex(24 downto 20),
         rd_mem => inst_rd_mem,
-        rd_wb => inst_rd_wb,
+        rd_wb  => inst_rd_wb,
         WriteReg_mem => WriteReg_mem,
-        WriteReg_wb => WriteReg_wb,
+        WriteReg_wb  => WriteReg_wb,
+        
+        -- Nieuw signaal aansluiten:
+        MemRead_mem  => MemRead_mem, 
+        
         FW_A_sel => FW_A_sel,
         FW_B_sel => FW_B_sel
     );
     
-    FW_A_mux: process(FW_A_sel, regData1_ex, ALU_result_mem, dataForReg)
-        begin
-            case FW_A_sel is
-            when "00" => FW_A_out <= regData1_ex; -- geen forwarding
-            when "01" => FW_A_out <= ALU_result_mem; -- van EX/MEM
-            when "10" => FW_A_out <= dataForReg; -- van WB
-            when others => FW_A_out <= regData1_ex;
-            end case;
-        end process;
-        
-    FW_B_mux: process(FW_B_sel, regData2_ex, ALU_result_mem, dataForReg)
-        begin
-            case FW_B_sel is
-            when "00" => FW_B_out <= regData2_ex;
-            when "01" => FW_B_out <= ALU_result_mem;
-            when "10" => FW_B_out <= dataForReg;
-            when others => FW_B_out <= regData2_ex;
-            end case;
-        end process;
+-- Forwarding Mux A (voor Operator 1)
+    FW_A_mux: process(FW_A_sel, regData1_ex, ALU_result_mem, dataForReg, multResult_mem, ToRegister_mem)
+    begin
+        case FW_A_sel is
+            when "00" => -- Geen forwarding
+                FW_A_out <= regData1_ex;
+            
+            when "10" => -- Forwarding van WB stage (dataForReg is al de juiste selectie)
+                FW_A_out <= dataForReg;
+                
+            when "01" => -- Forwarding van MEM stage
+                -- Hier moeten we kiezen: komt de data van de ALU of de Multiplier?
+                case ToRegister_mem is
+                    when "110" => -- MUL (Low bits)
+                        FW_A_out <= multResult_mem(31 downto 0); 
+                    when "111" => -- MULH (High bits)
+                        FW_A_out <= multResult_mem(63 downto 32);
+                    when others => -- Standaard ALU operatie (ADD, SUB, etc.)
+                        FW_A_out <= ALU_result_mem;
+                end case;
+                
+            when others => 
+                FW_A_out <= regData1_ex;
+        end case;
+    end process;
+
+    -- Forwarding Mux B (voor Operator 2)
+    FW_B_mux: process(FW_B_sel, regData2_ex, ALU_result_mem, dataForReg, multResult_mem, ToRegister_mem)
+    begin
+        case FW_B_sel is
+            when "00" => -- Geen forwarding
+                FW_B_out <= regData2_ex; -- Let op: regData2 hier!
+            
+            when "10" => -- Forwarding van WB stage
+                FW_B_out <= dataForReg;
+                
+            when "01" => -- Forwarding van MEM stage
+                case ToRegister_mem is
+                    when "110" => -- MUL (Low bits)
+                        FW_B_out <= multResult_mem(31 downto 0);
+                    when "111" => -- MULH (High bits)
+                        FW_B_out <= multResult_mem(63 downto 32);
+                    when others => -- Standaard ALU operatie
+                        FW_B_out <= ALU_result_mem;
+                end case;
+                
+            when others => 
+                FW_B_out <= regData2_ex;
+        end case;
+    end process;
 
     -- EX/MEM pipeline register
     EXMEM_reg: ex_mem
@@ -575,6 +663,7 @@ begin
         newAddress_ex_in    => newAddress,
         zero_ex_in          => zero,
         signo_ex_in         => signo,
+        MemRead_ex_in       => MemRead_ex,
         
         -- Control inputs from EX stage
         memWrite_ex_in      => memWrite_ex,
@@ -599,16 +688,22 @@ begin
         Branch_mem_out      => Branch_mem,
         WriteReg_mem_out    => WriteReg_mem,
         ToRegister_mem_out  => ToRegister_mem,
-        jump_mem_out        => jump_mem
+        jump_mem_out        => jump_mem,
+        MemRead_mem_out  => MemRead_mem
+        
+        
+        
     );
 
     -- MEM stage: now uses *_mem signals
 
-    BRControl: Branch_Control port map (branch => Branch_mem, signo => signo_mem, zero => zero_mem, PCSrc => PCSrc);
+    BRControl: Branch_Control port map (branch => Branch_ex, signo => signo, zero => zero, PCSrc => PCSrc_mem);
 
+
+    Mux3: Mux port map (muxIn0 => PCOutPlus, muxIn1 => newAddress, selector => PCSrc_mem, muxOut => PCNext);
     RAM: Data_Mem port map (clk => clk, writeEn => memWrite_mem, Address => ALU_result_mem(7 downto 0), dataIn => regData2_mem, dataOut => dataOut);
 
-    Mux3: Mux port map (muxIn0 => PCOutPlus, muxIn1 => newAddress_mem, selector => PCSrc, muxOut => PCNext);
+
     
     -- Mux_PC_stall
     PCIn <= PCNext when PCWrite = '1' else PCOut;

@@ -339,7 +339,7 @@ begin
                     ALUOp       <= "101";
                     WriteReg    <= '1';
                     Memread     <= '0';
-                when "1101111" =>                  --JAL
+                when "1101111" =>                  --JAL    
                     jump        <= '0';
                     Branch      <= "110";
                     ToRegister  <= "101";           --PC+4

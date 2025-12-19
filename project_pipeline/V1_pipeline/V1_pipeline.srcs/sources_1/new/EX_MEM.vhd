@@ -24,6 +24,7 @@ entity ex_mem is
         WriteReg_ex_in      : in  std_logic;
         ToRegister_ex_in    : in  std_logic_vector(2 downto 0);
         jump_ex_in          : in  std_logic;
+        MemRead_ex_in       : in  std_logic;
         
         -- Data outputs to MEM stage
         ALU_result_mem_out  : out std_logic_vector(31 downto 0);
@@ -41,7 +42,10 @@ entity ex_mem is
         Branch_mem_out      : out std_logic_vector(2 downto 0);
         WriteReg_mem_out    : out std_logic;
         ToRegister_mem_out  : out std_logic_vector(2 downto 0);
-        jump_mem_out        : out std_logic
+        jump_mem_out        : out std_logic;
+        MemRead_mem_out     : out std_logic
+        
+        
     );
 end entity ex_mem;
 
@@ -50,7 +54,7 @@ begin
     process(clk)
     begin
         if rising_edge(clk) then
-            if rst = '1' then
+            if rst = '0' then
                 -- Reset data signals
                 ALU_result_mem_out  <= (others => '0');
                 regData2_mem_out    <= (others => '0');
@@ -87,6 +91,7 @@ begin
                 WriteReg_mem_out    <= WriteReg_ex_in;
                 ToRegister_mem_out  <= ToRegister_ex_in;
                 jump_mem_out        <= jump_ex_in;
+                MemRead_mem_out    <= MemRead_ex_in;
             end if;
         end if;
     end process;

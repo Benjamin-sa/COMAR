@@ -39,7 +39,7 @@ begin
     process(clk)
     begin
         if rising_edge(clk) then
-            if rst = '1' then
+            if rst = '0' then
                 ALU_result_wb_out <= (others => '0');
                 dataOut_wb_out <= (others => '0');
                 PC_wb_out <= (others => '0');
